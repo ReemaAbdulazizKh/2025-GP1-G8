@@ -1,2 +1,22 @@
-brainalyze-admin.json
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+env/
+venv/
+
+# Environment variables and credentials
 .env
+brainalyze-admin.json
+
+# OS-specific files
+desktop.ini
+.DS_Store
+Thumbs.db
+
+# VS Code settings
+.vscode/
