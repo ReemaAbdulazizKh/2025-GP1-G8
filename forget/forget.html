@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Brainalyze - Forgot Password</title>
+  <style>
+    * {margin:0;padding:0;box-sizing:border-box;font-family:"Poppins",sans-serif;}
+    body {
+      height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:linear-gradient(to right,#1b2735,#D3D3D3);
+      position: relative;
+    }
+
+    /* 🔹 Logo top-left */
+    .site-logo {
+      position:absolute;
+      top:25px;
+      left:25px;
+      width:95px;
+      height:auto;
+      z-index:10;
+      cursor:pointer;
+      transition:transform .3s ease;
+    }
+    .site-logo:hover {
+      transform:scale(1.05);
+    }
+
+    .form-box {
+      background:#f2f5fb;
+      border-radius:20px;
+      box-shadow:0 10px 25px rgba(0,0,0,.2);
+      padding:40px 50px;
+      text-align:center;
+      width:360px;
+      position:relative;
+    }
+    h2 {
+      color:#1e2a47;
+      margin-bottom:10px;
+    }
+    p {
+      color:#444;
+      font-size:.9rem;
+      margin-bottom:25px;
+    }
+    input {
+      width:100%;
+      padding:12px;
+      border:1px solid #a5b6d3;
+      border-radius:8px;
+      background-color:#f0f3fa;
+      font-size:1rem;
+      margin-bottom:15px;
+    }
+    input:focus {
+      border-color:#274b8a;
+      outline:none;
+      box-shadow:0 0 8px rgba(39,75,138,.3);
+    }
+    button {
+      width:100%;
+      padding:12px;
+      border:none;
+      border-radius:8px;
+      background:#1e2a47;
+      color:white;
+      font-size:1rem;
+      cursor:pointer;
+      transition:.3s;
+    }
+    button:hover {background:#16294e;}
+
+    .message {
+      font-size:0.9rem;
+      text-align:center;
+      margin-top:10px;
+      opacity:0;
+      transition:opacity .3s ease;
+    }
+    .message.show {opacity:1;}
+    .error {color:#d92b2b;}
+    .success {color:#1e2a47;}
+
+    .back-arrow {
+      position:absolute;
+      top:15px;left:15px;
+      font-size:1.4rem;
+      color:#1e2a47;
+      text-decoration:none;
+      font-weight:bold;
+      transition:.3s;
+    }
+    .back-arrow:hover {transform:translateX(-3px);}
+  </style>
+</head>
+<body>
+
+  <!-- 🔹 Logo top-left -->
+  <img src="../images/logo.png" alt="Brainalyze Logo" class="site-logo">
+
+  <div class="form-box">
+    <a href="../register_login/register_login.html#login" class="back-arrow">←</a>
+    <h2>Forgot Password?</h2>
+    <p>Enter your email to receive a password reset link</p>
+    <input type="email" id="resetEmail" placeholder="Your Email" required />
+    <button id="resetBtn">Send Reset Link</button>
+    <p class="message" id="resetMessage"></p>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getAuth, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey:"AIzaSyC5bb6M-sEVu9JL7mkVLFvkv44k8JIG9Es",
+      authDomain:"brainalyze.firebaseapp.com",
+      projectId:"brainalyze",
+      storageBucket:"brainalyze.firebasestorage.app",
+      messagingSenderId:"930694068293",
+      appId:"1:930694068293:web:72fd905080497218010b2c",
+      measurementId:"G-FJ99J54EYR"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const resetBtn = document.getElementById("resetBtn");
+    const resetEmail = document.getElementById("resetEmail");
+    const resetMessage = document.getElementById("resetMessage");
+
+    function showMessage(msg, type) {
+      resetMessage.textContent = msg;
+      resetMessage.className = `message ${type} show`;
+      setTimeout(()=>resetMessage.classList.remove("show"), 3000);
+    }
+
+    resetBtn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      const email = resetEmail.value.trim();
+      if (!email) {
+        showMessage("Please enter your email address.", "error");
+        return;
+      }
+      try {
+        await sendPasswordResetEmail(auth, email);
+        showMessage("Password reset link sent! Check your email.", "success");
+        setTimeout(() => {
+          window.location.href = "../verification/verification.html";
+        }, 3000);
+      } catch (error) {
+        const code = error.code;
+        let message = "Something went wrong. Please try again.";
+        if (code === "auth/user-not-found") message = "No account found with this email.";
+        if (code === "auth/invalid-email") message = "Invalid email address.";
+        showMessage(message, "error");
+      }
+    });
+  </script>
+</body>
+</html>

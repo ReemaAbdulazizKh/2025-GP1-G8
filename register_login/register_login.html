@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Brainalyze - Auth Page</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <style>
+    * {margin:0;padding:0;box-sizing:border-box;font-family:"Poppins",sans-serif;}
+    body {min-height:100vh;display:flex;align-items:center;justify-content:center;
+      background: linear-gradient(to right, #1b2735, #D3D3D3);}
+    .site-logo {position:absolute;top:25px;left:25px;width:95px;cursor:pointer;transition:transform .3s;}
+    .site-logo:hover {transform:scale(1.05);}
+    .container {display:flex;align-items:center;justify-content:center;gap:0;transition:all .6s ease;}
+    .image-box {width:400px;height:460px;
+      background:url('https://i.postimg.cc/Wz3BTQTz/temp-Imagew-ICRy3.avif') center/cover no-repeat;
+      border-radius:20px;box-shadow:0 8px 25px rgba(0,0,0,.3);}
+    .form-box {width:340px;height:460px;background:#f4f7fb;border-radius:20px;
+      box-shadow:0 8px 25px rgba(0,0,0,.2);display:flex;justify-content:center;align-items:center;
+      position:relative;transition:transform .8s ease;border-radius:.8s ease;transform-style:preserve-3d;}
+    .form-content {position:absolute;width:80%;backface-visibility:hidden;}
+    .signup {transform:rotateY(0deg);}
+    .login {transform:rotateY(180deg);position:absolute;top:50%;left:50%;
+      transform:translate(-50%,-50%) rotateY(180deg);}
+    .form-box.flipped {transform:rotateY(180deg);}
+    h2 {text-align:center;color:#1e2a47;margin-bottom:16px;font-size:1.5rem;}
+    input {width:100%;padding:11px 38px 11px 10px;border-radius:10px;border:1px solid #cbd5e1;
+      background:#f9fafb;font-size:0.95rem;margin-bottom:12px;}
+    input:focus {border-color:#3b82f6;outline:none;box-shadow:0 0 5px rgba(59,130,246,0.3);}
+    button {padding:10px;width:100%;border-radius:10px;border:none;background:#1e2a47;color:white;
+      font-size:1rem;cursor:pointer;transition:.3s;margin-top:4px;}
+    button:hover {background:#16294e;}
+    p {text-align:center;margin-top:8px;font-size:.85rem;}
+    p a {color:#1e2a47;text-decoration:underline;cursor:pointer;}
+    .container.reverse {flex-direction:row-reverse;}
+    .inline-msg {font-size:0.85rem;text-align:center;margin-top:6px;opacity:0;transition:opacity .25s;}
+    .inline-msg.show {opacity:1;}
+    .inline-msg.error {color:#d92b2b;}
+    .inline-msg.success {color:#1e2a47;}
+    .password-wrapper {position:relative;}
+    .eye-icon {position:absolute;right:10px;top:12px;width:20px;height:20px;cursor:pointer;fill:#1e2a47;opacity:0.7;}
+    .eye-icon:hover {opacity:1;}
+  </style>
+</head>
+<body>
+  <!-- 🔹 شعار الموقع -->
+  <img src="../images/logo.png" alt="Brainalyze Logo" class="site-logo">
+
+  <div class="container" id="container">
+    <div class="image-box" id="imageBox"></div>
+
+    <div class="form-box" id="formBox">
+      <!-- 🔹 Sign Up -->
+      <div class="form-content signup" id="signupForm">
+        <h2>Sign Up</h2>
+        <input type="text" id="signupName" placeholder="User name" required>
+        <input type="email" id="signupEmail" placeholder="Email" required>
+        <input type="text" id="signupPhone" placeholder="Phone number" inputmode="tel" />
+        <div class="password-wrapper">
+          <input type="password" id="signupPassword" placeholder="Password" required>
+          <svg class="eye-icon" onclick="togglePassword('signupPassword', this)" viewBox="0 0 24 24">
+            <path d="M12 5c-7.633 0-12 7-12 7s4.367 7 12 7 12-7 12-7-4.367-7-12-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>
+            <circle cx="12" cy="12" r="2.5"/>
+          </svg>
+        </div>
+        <button id="signupBtn">Sign Up</button>
+        <p class="inline-msg error" id="signupError"></p>
+        <p class="inline-msg success" id="signupSuccess"></p>
+        <p>Already have an account? <a id="toLogin">Log In</a></p>
+      </div>
+
+      <!-- 🔹 Log In -->
+      <div class="form-content login" id="loginForm">
+        <h2>Log In</h2>
+        <input type="email" id="loginEmail" placeholder="Email" required>
+        <div class="password-wrapper">
+          <input type="password" id="loginPassword" placeholder="Password" required>
+          <svg class="eye-icon" onclick="togglePassword('loginPassword', this)" viewBox="0 0 24 24">
+            <path d="M12 5c-7.633 0-12 7-12 7s4.367 7 12 7 12-7 12-7-4.367-7-12-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>
+            <circle cx="12" cy="12" r="2.5"/>
+          </svg>
+        </div>
+        <button id="loginBtn">Log In</button>
+        <p class="inline-msg error" id="loginError"></p>
+        <p class="inline-msg success" id="loginSuccess"></p>
+        <p>Don’t have an account? <a id="toSignup">Sign Up</a></p>
+
+        <!-- 🔹 الرابط الخاص بنسيان كلمة المرور -->
+        <p><a href="../forget/forget.html">Forgot your password?</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const toLogin = document.getElementById("toLogin");
+    const toSignup = document.getElementById("toSignup");
+    const formBox = document.getElementById("formBox");
+    const imageBox = document.getElementById("imageBox");
+    const container = document.getElementById("container");
+
+    toLogin.addEventListener("click", () => {
+      formBox.classList.add("flipped"); container.classList.add("reverse");
+      imageBox.style.opacity="0";
+      setTimeout(()=>{ imageBox.style.background="url('https://i.postimg.cc/fbghZK1N/temp-Imageee-Gfsz.avif') center/cover no-repeat"; imageBox.style.opacity="1";},100);
+    });
+    toSignup.addEventListener("click", () => {
+      formBox.classList.remove("flipped"); container.classList.remove("reverse");
+      imageBox.style.opacity="0";
+      setTimeout(()=>{ imageBox.style.background="url('https://i.postimg.cc/Wz3BTQTz/temp-Imagew-ICRy3.avif') center/cover no-repeat"; imageBox.style.opacity="1";},100);
+    });
+
+    function togglePassword(id, icon){
+      const field=document.getElementById(id);
+      field.type = field.type==="password" ? "text":"password";
+      icon.style.opacity = field.type==="text" ? "1":"0.7";
+    }
+    function showInlineMessage(id,msg,isError=true){
+      const el=document.getElementById(id);
+      el.textContent=msg; el.classList.add("show");
+      el.classList.toggle("error",isError);
+      el.classList.toggle("success",!isError);
+      setTimeout(()=>{el.classList.remove("show");},3000);
+    }
+
+    const API = "http://127.0.0.1:8000/api"; // عنوان الباك-إند المحلي
+
+    // 🔹 Sign Up
+    document.getElementById("signupBtn").addEventListener("click", async ()=>{
+      const name=document.getElementById("signupName").value.trim();
+      const email=document.getElementById("signupEmail").value.trim();
+      const phone=document.getElementById("signupPhone").value.trim();
+      const password=document.getElementById("signupPassword").value.trim();
+      if(!name||!email||!password){showInlineMessage("signupError","Please fill all required fields");return;}
+      const body = {
+        FullName: name,
+        Email: email,
+        ContactNumber: phone,
+        Password: password,
+        Specialty: "",
+        ProfilePicture: "",
+        Status: "Active",
+        TwoFactorEnabled: false
+      };
+
+      try{
+        const res=await fetch(`${API}/signup`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+        const data=await res.json();
+        if(!res.ok)throw new Error(data.detail||"Signup failed");
+        showInlineMessage("signupSuccess",data.message,false);
+      }catch(err){showInlineMessage("signupError",err.message);}
+    });
+
+    // 🔹 Log In
+    document.getElementById("loginBtn").addEventListener("click", async ()=>{
+      const email=document.getElementById("loginEmail").value.trim();
+      const password=document.getElementById("loginPassword").value.trim();
+      if(!email||!password){showInlineMessage("loginError","Please fill all required fields");return;}
+      const body={email,password};
+      try{
+        const res=await fetch(`${API}/login`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+        const data=await res.json();
+        if(!res.ok)throw new Error(data.detail||"Login failed");
+        showInlineMessage("loginSuccess",data.message,false);
+        // window.location.href="dashboard.html";
+      }catch(err){showInlineMessage("loginError",err.message);}
+    });
+  </script>
+</body>
+</html>

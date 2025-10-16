@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Brainalyze - Verify Code</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {margin:0; padding:0; box-sizing:border-box; font-family:"Poppins", sans-serif;}
+
+    body {
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background: linear-gradient(to right, #1b2735, #D3D3D3);
+      position: relative;
+    }
+
+    /* 🔹 Logo top-left */
+    .site-logo {
+      position:absolute;
+      top:25px;
+      left:25px;
+      width:95px;
+      height:auto;
+      z-index:10;
+      cursor:pointer;
+      transition:transform .3s ease;
+    }
+    .site-logo:hover {transform:scale(1.05);}
+
+    .container {
+      width:100%;
+      max-width:380px;
+      background:#f4f7fb;
+      border-radius:20px;
+      padding:40px 30px;
+      box-shadow:0 8px 25px rgba(0,0,0,0.15);
+      text-align:center;
+    }
+
+    h1 {
+      color:#1e2a47;
+      font-size:1.6rem;
+      margin-bottom:10px;
+    }
+
+    p {
+      color:#3d4f6c;
+      font-size:0.9rem;
+      margin-bottom:25px;
+    }
+
+    .code-boxes {
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      margin-bottom:25px;
+    }
+
+    .code-boxes input {
+      width:45px;
+      height:50px;
+      border-radius:10px;
+      border:1px solid #cbd5e1;
+      font-size:1.3rem;
+      text-align:center;
+      background:#f9fafb;
+      transition:.3s;
+    }
+
+    .code-boxes input:focus {
+      border-color:#3b82f6;
+      outline:none;
+      box-shadow:0 0 5px rgba(59,130,246,0.3);
+    }
+
+    button {
+      width:100%;
+      background:#1e2a47;
+      color:white;
+      border:none;
+      border-radius:10px;
+      padding:11px;
+      font-size:1rem;
+      cursor:pointer;
+      transition:0.3s;
+    }
+
+    button:hover {background:#16294e;}
+
+    .resend {
+      margin-top:15px;
+      font-size:0.9rem;
+      color:#1e2a47;
+    }
+
+    .resend a {
+      color:#1e2a47;
+      text-decoration:underline;
+      cursor:pointer;
+      font-weight:500;
+    }
+
+    .message {
+      margin-top:15px;
+      font-size:0.9rem;
+      color:#d62828;
+      font-weight:500;
+      opacity:0;
+      transition:opacity .3s;
+    }
+    .message.show {opacity:1;}
+  </style>
+</head>
+<body>
+
+  <!-- 🔹 Logo top-left -->
+  <img src="../images/logo.png" alt="Brainalyze Logo" class="site-logo">
+
+  <div class="container">
+    <h1>Verify Code</h1>
+    <p>Please enter the 6-digit code sent to your email.</p>
+
+    <div class="code-boxes">
+      <input type="text" maxlength="1">
+      <input type="text" maxlength="1">
+      <input type="text" maxlength="1">
+      <input type="text" maxlength="1">
+      <input type="text" maxlength="1">
+      <input type="text" maxlength="1">
+    </div>
+
+    <button id="verifyBtn">Verify</button>
+
+    <div id="inlineMessage" class="message"></div>
+
+    <p class="resend">Didn’t receive a code? <a id="resendLink">Resend</a></p>
+  </div>
+
+  <script>
+    const inputs = document.querySelectorAll('.code-boxes input');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const messageBox = document.getElementById('inlineMessage');
+    const resendLink = document.getElementById('resendLink');
+
+    const API = "http://127.0.0.1:8000/api";  // 🔹 عنوان الباك-إند المحلي
+
+    // التنقل بين المربعات تلقائيًا
+    inputs.forEach((input, index) => {
+      input.addEventListener('input', () => {
+        if (input.value.length === 1 && index < inputs.length - 1) {
+          inputs[index + 1].focus();
+        }
+      });
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Backspace' && index > 0 && !input.value) {
+          inputs[index - 1].focus();
+        }
+      });
+    });
+
+    function showMessage(text, color = '#d62828') {
+      messageBox.textContent = text;
+      messageBox.style.color = color;
+      messageBox.classList.add('show');
+      setTimeout(()=>messageBox.classList.remove('show'), 3500);
+    }
+
+    // ✅ إرسال التحقق إلى الباك-إند
+    verifyBtn.addEventListener('click', async () => {
+      const code = Array.from(inputs).map(i => i.value).join('');
+      const email = localStorage.getItem('userEmail'); // يخزن بعد تسجيل الدخول
+      if (!email) return showMessage('No email found in session.');
+      if (code.length < 6) return showMessage('Please enter all 6 digits.');
+
+      try {
+        const res = await fetch(`${API}/verify-code`, {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({ email, code })
+        });
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.detail || 'Verification failed.');
+        showMessage('✅ Verification successful!', '#1e2a47');
+
+        // بعد النجاح الانتقال إلى الصفحة التالية
+        setTimeout(() => { window.location.href = "../dashboard/dashboard.html"; }, 1500);
+      } catch (err) {
+        showMessage(err.message);
+      }
+    });
+
+    // ✅ إعادة إرسال الكود
+    resendLink.addEventListener('click', async () => {
+      const email = localStorage.getItem('userEmail');
+      if (!email) return showMessage('No email found in session.');
+
+      try {
+        const res = await fetch(`${API}/send-code`, {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.detail || 'Failed to resend code.');
+        showMessage('📧 New code sent to your email!', '#1e2a47');
+      } catch (err) {
+        showMessage(err.message);
+      }
+    });
+  </script>
+</body>
+</html>
