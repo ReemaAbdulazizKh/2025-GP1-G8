@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-wdith, initial-scale=1.0">
+    <title>brainalyzes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Afacad+Flux:wght@100..1000&family=Bitter:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Hatran&family=Palanquin+Dark:wght@400;500;600;700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header id="header">
+        <div class="logo">
+<img src="{{ url_for('static', filename='images/lof.png') }}" alt="Logo">
+
+        </div>
+        <nav id="nav">
+            <ul>
+            <li class="separator"></li>
+           <li><a class="link link-black signin-btn" id="signin-btn" href="{{ url_for('login') }}">Sign in</a></li>
+            <li><a class="button primary small signup-btn" href="#">Sign up</a></li>
+
+            </ul>
+
+        </nav>
+    </header>
+  <div class="box"
+style="background:#f7f7f8 url('{{ url_for('static', filename='images/bra2.png') }}') no-repeat center/60%;"></div>
+
+
+    <div class="slogan">
+    <span class="left">Your He<span class="highlight">alth</span></span>  <br>
+    <span class="right"><span class="highlight">Our</span>
+    Passion</span>
+</div>
+</div>
+
+<div class="specialty-section">
+    <h2 class="specialty-title">Our Services</h2>
+    <div class="specialty-cards">
+        <div class="specialty-card">
+      <img src="{{ url_for('static', filename='images/ri.jpg') }}" alt="MRI Scan Analysis" class="specialty-image">
+
+            <h3 class="specialty-name">MRI Scan Analysis</h3>
+        </div>
+        <div class="specialty-card">
+<img src="{{ url_for('static', filename='images/gr.jpg') }}" alt="Visualization Insights" class="specialty-image">
+
+            <h3 class="specialty-name">Visualization Insights</h3>
+        </div>
+        <div class="specialty-card">
+<img src="{{ url_for('static', filename='images/re.jpg') }}" alt="AI Report Generation" class="specialty-image">
+            <h3 class="specialty-name">AI Report Generation</h3>
+        </div>
+    </div>
+</div>
+
+<div class="us-section">
+    <div class="lineus">
+        <span class="line"></span>
+        <h2>About us</h2> 
+        <span class="line"></span>
+    </div>
+    <p>At <span class="highlight2">Brainalyze</span>,  we revolutionize medical imaging with the power of AI.
+<br>
+       We make it effortless for radiologists to analyze MRI scans,
+generate detailed reports,
+<br> and gain meaningful insights — all in one place.<br>
+Our goal is to make diagnostics faster, smarter, and more accurate,
+<br>bridging technology and healthcare to improve patient outcomes worldwide.</p>
+</div>
+ <!-- Offer Sections -->
+ <div class="offer-container top-left">
+    <img src="{{ url_for('static', filename='images/22.jpg') }}" alt="Offer" class="offer-image">
+
+    
+    <div class="offer-text">
+        <h2 class="offer-title">Special Offer for Radiologists!</h2>
+        <p class="offer-description">
+            Get access to AI-powered MRI analysis and automated report generation at an exclusive rate.<br>
+Experience faster, smarter, and more accurate diagnostics — powered by Brainalyze.
+<br>📅 Limited-time offer — join now and enhance your radiology workflow!<br>Don’t miss out!
+        </p>
+    </div>
+</div>
+
+<div class="offer-container bottom-right">
+    <div class="offer-text">
+        <h2 class="offer-title">💻 Exclusive Offer for Medical Institutions!</h2>
+        <p class="offer-description">
+            Upgrade your diagnostic process with Brainalyze AI,<br>
+the platform that analyzes brain MRI scans and generates medical reports in seconds.<br>
+📅 Offer available for a limited time — transform your imaging analysis today!<br>
+Empower your clinic with AI precision.
+      
+        </p>
+    </div>
+    <img src="{{ url_for('static', filename='images/33.jpg') }}" alt="Offer" class="offer-image">
+
+</div>
+
+<footer>
+    <div class="footer-section">
+      <img src="{{ url_for('static', filename='images/lof.png') }}" alt="Logo" class="logoF">
+
+
+    </div>
+    <div class="footer-section social-media">
+      <h3>SOCIAL MEDIA</h3>
+      <ul class="social-icons">
+       <li><a href="#"><img src="{{ url_for('static', filename='images/twitter.png') }}" alt="Twitter"></a></li>
+       <li><a href="#"><img src="{{ url_for('static', filename='images/facebook.png') }}" alt="Facebook"></a></li>
+       <li><a href="#"><img src="{{ url_for('static', filename='images/instagram.png') }}" alt="Instagram"></a></li>
+
+        <li>@official_brainalyze</li>
+                      </ul>
+                  </div>
+                  <div class="footer-section contact-us">
+                      <h3>CONTACT US</h3>
+                      <ul>
+                          <li><a href="#"><img src="{{ url_for('static', filename='images/whatsapp.png') }}" alt="Phone"> +123 165 788</a></li>
+                          <li><a href="mailto:@brainalyze@gmail.com"><img src="{{ url_for('static', filename='images/gmail.png') }}" alt="Email"> brainalyze@gmail.com</a></li>
+
+      </ul>
+      
+    </div>
+    
+  </footer>
+   <div class="bottom-bar">
+              <p>  Terms and Conditions<br>
+  privacy policy<br>&copy; 2024 brainalyze company . All rights reserved</p>
+          </div> 
+</body>
+</html>

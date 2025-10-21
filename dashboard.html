@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Brainalyze | Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  body {
+    margin: 0;
+    font-family: 'Palanquin Dark', sans-serif;
+    background-color: #f7faff;
+    display: flex;
+    flex-direction: row;
+  }
+
+  /* ===== Sidebar ===== */
+  .sidebar {
+    width: 80px;
+    background-color: #ffffff;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+  }
+
+  .sidebar img {
+    width: 40px;
+    margin: 20px 0;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  .sidebar img:hover {
+    transform: scale(1.1);
+  }
+
+  /* ===== Main Section ===== */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 60px;
+    min-height: 100vh;
+  }
+
+  /* ===== Doctor Info ===== */
+  .doctor-info {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 20px;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .doctor-details {
+    text-align: right;
+  }
+
+  .doctor-details h2 {
+    margin: 0;
+    color: #506DCA;
+    font-size: 22px;
+  }
+
+  .doctor-details p {
+    margin: 3px 0;
+    color: #555;
+    font-size: 15px;
+  }
+
+  .profile-pic {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #e0e6ff;
+    cursor: pointer;
+  }
+
+  .profile-pic:hover {
+    transform: scale(1.08);
+    transition: 0.3s;
+  }
+
+  /* ===== Cards Section ===== */
+  .cards {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 25px;
+    margin-top: 80px;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    width: 230px;
+    text-align: center;
+    padding: 25px;
+    transition: transform 0.3s;
+  }
+
+  .card:hover {
+    transform: scale(1.05);
+  }
+
+  .card h3 {
+    color: #506DCA;
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  .card p {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+  }
+
+  /* ===== Charts Section ===== */
+  .charts-section {
+    margin-top: 60px;
+    width: 90%;
+    text-align: center;
+  }
+
+  .charts-section h3 {
+    color: #506DCA;
+    font-size: 22px;
+    margin-bottom: 30px;
+  }
+
+  .charts-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 30px;
+  }
+
+  .chart-box {
+    width: 280px;
+    height: 280px;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    padding: 15px;
+  }
+
+  /* ===== Footer ===== */
+  .footer {
+    width: 100%;
+    background: #dfe7ffd8;
+    border-top: 1px solid #e5e9ff;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.04);
+    padding: 30px 0 0 0;
+    margin-top: 100px;
+  }
+
+  .footer-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 160px;
+    flex-wrap: wrap;
+    text-align: center;
+    padding-bottom: 15px;
+  }
+
+  .footer-section h3 {
+    color: #506DCA;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .footer-logo {
+    width: 80px;
+    transition: transform 0.3s ease;
+  }
+
+  .footer-logo:hover {
+    transform: scale(1.1);
+  }
+
+  .social-icons img {
+    width: 28px;
+    height: 28px;
+    margin: 0 6px;
+    transition: transform 0.3s;
+    object-fit: contain;
+  }
+
+  .social-icons img:hover {
+    transform: scale(1.2);
+  }
+
+  .username {
+    color: #000;
+    font-weight: 600;
+    font-size: 14px;
+    margin-top: 6px;
+  }
+
+  .contact-section p {
+    color: #333;
+    font-size: 14px;
+    margin: 6px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .contact-section img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+  }
+
+  .footer-bottom {
+    background-color: #f3f6ff;
+    text-align: center;
+    padding: 12px 0;
+    font-size: 13px;
+    color: #506DCA;
+    border-top: 1px solid #d8e0ff;
+  }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <img src="{{ url_for('static', filename='images/lof.png') }}" title="Brainalyze">
+  <img src="{{ url_for('static', filename='images/home-icon.jpg') }}" title="Home" onclick="window.location.href='{{ url_for('home') }}'">
+  <img src="{{ url_for('static', filename='images/dashboard-icon.jpg') }}" title="Dashboard">
+  <img src="{{ url_for('static', filename='images/patient-icon.png') }}" title="Patients">
+  <img src="{{ url_for('static', filename='images/mri-icon.jpg') }}" title="MRI Scans">
+  <img src="{{ url_for('static', filename='images/report.jpg') }}" title="Reports">
+  <img src="{{ url_for('static', filename='images/set.png') }}" title="Settings">
+</div>
+
+<div class="main">
+  <div class="doctor-info">
+    <div class="doctor-details">
+      <h2>Welcome Dr. {{ doctor.name }} | Dashboard</h2>
+      <p>{{ doctor.email }}</p>
+    </div>
+    <img src="{{ doctor.ProfilePicture if doctor.ProfilePicture else url_for('static', filename='images/user.png') }}" 
+         class="profile-pic" alt="Profile"
+         onclick="window.location.href='{{ url_for('profile') }}'">
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <h3>Total Patients</h3>
+      <p>{{ total_patients }}</p>
+    </div>
+    <div class="card">
+      <h3>MRI Scans Analyzed</h3>
+      <p>{{ new_scans }}</p>
+    </div>
+    <div class="card">
+      <h3>Detection Accuracy</h3>
+      <p>{{ ai_accuracy }}</p>
+    </div>
+    <div class="card">
+      <h3>Reports Generated</h3>
+      <p>{{ total_reports }}</p>
+    </div>
+  </div>
+
+  <div class="charts-section">
+    <hr style="width: 90%; border: 0.5px solid #dbe1ff; margin: 50px auto;">
+    <h3>📊 Statistical Insights</h3>
+    <div class="charts-container">
+      <div class="chart-box"><canvas id="tumorChart"></canvas></div>
+      <div class="chart-box"><canvas id="monthlyChart"></canvas></div>
+      <div class="chart-box"><canvas id="genderChart"></canvas></div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-wrapper">
+      <div class="footer-section logo-section">
+        <img src="{{ url_for('static', filename='images/lof.png') }}" alt="Logo" class="footer-logo">
+      </div>
+      <div class="footer-section social-section">
+        <h3>SOCIAL MEDIA</h3>
+        <div class="social-icons">
+          <a href="#"><img src="{{ url_for('static', filename='images/facebook.png') }}" alt="Facebook"></a>
+          <a href="#"><img src="{{ url_for('static', filename='images/instagram.png') }}" alt="Instagram"></a>
+        </div>
+        <p class="username">@official_brainalyze</p>
+      </div>
+      <div class="footer-section contact-section">
+        <h3>CONTACT US</h3>
+        <p><img src="{{ url_for('static', filename='images/whatsapp.png') }}" alt="Phone"> +123 165 788</p>
+        <p><img src="{{ url_for('static', filename='images/gmail.png') }}" alt="Email"> brainalyze@gmail.com</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>Terms and Conditions · Privacy Policy<br>
+      &copy; 2024 Brainalyze Company. All rights reserved.</p>
+    </div>
+  </footer>
+</div>
+
+<script>
+  const tumorData = {{ tumor_counts | tojson }};
+  new Chart(document.getElementById('tumorChart'), {
+    type: 'pie',
+    data: {
+      labels: Object.keys(tumorData),
+      datasets: [{
+        data: Object.values(tumorData),
+        backgroundColor: ['#506DCA', '#8EA8FF', '#AFC7FF']
+      }]
+    },
+    options: { 
+      plugins: { title: { display: true, text: 'Tumor Type Distribution', font: { size: 14 } }, legend: { position: 'bottom' } },
+      maintainAspectRatio: false
+    }
+  });
+
+  const monthlyUploads = {{ monthly_uploads | tojson }};
+  new Chart(document.getElementById('monthlyChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+      datasets: [{
+        label: 'MRI Uploads',
+        data: monthlyUploads,
+        backgroundColor: '#506DCA'
+      }]
+    },
+    options: { 
+      plugins: { title: { display: true, text: 'Monthly MRI Uploads', font: { size: 14 } }, legend: { display: false } },
+      maintainAspectRatio: false,
+      scales: { y: { beginAtZero: true } }
+    }
+  });
+
+  const genderData = {{ gender_counts | tojson }};
+  new Chart(document.getElementById('genderChart'), {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(genderData),
+      datasets: [{
+        data: Object.values(genderData),
+        backgroundColor: ['#506DCA', '#AFC7FF']
+      }]
+    },
+    options: { 
+      plugins: { title: { display: true, text: 'Patient Gender Distribution', font: { size: 14 } }, legend: { position: 'bottom' } },
+      maintainAspectRatio: false
+    }
+  });
+</script>
+</body>
+</html>

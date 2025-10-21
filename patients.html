@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Brainalyze | Patients</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{
+    --brand:#506DCA;
+    --bg:#f7faff;
+    --card:#ffffff;
+    --muted:#555;
+    --soft:#e0e6ff;
+  }
+  *{box-sizing:border-box;}
+  body {
+    margin: 0;
+    font-family: 'Palanquin Dark', sans-serif;
+    background-color: var(--bg);
+    display: flex;
+    flex-direction: row;
+    min-height:100vh;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 80px;
+    background-color: #ffffff;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+    position: sticky;
+    top:0;
+  }
+  .sidebar img {width:40px;margin:20px 0;cursor:pointer;transition:0.2s;}
+  .sidebar img:hover{transform:scale(1.1)}
+
+  /* Main layout */
+  .main {flex:1;display:flex;flex-direction:column;padding:30px 40px;min-height:100vh;}
+  .topbar {display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+  .page-title{color:var(--brand);font-size:22px;margin:0;}
+  .doctor-info{display:flex;align-items:center;gap:14px;}
+  .doctor-details{text-align:right;}
+  .doctor-details h2{margin:0;color:var(--brand);font-size:18px;}
+  .doctor-details p{margin:0;color:var(--muted);font-size:13px;}
+  .profile-pic{width:48px;height:48px;border-radius:50%;object-fit:cover;border:3px solid var(--soft);cursor:pointer;}
+
+  /* Search + filter */
+  .actions-row{display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-bottom:15px;position:relative;}
+  .search-container{position:relative;display:flex;align-items:center;}
+  .search-input{width:350px;max-width:45vw;background:#fff;border:1.8px solid #ccd4ff;border-radius:10px;padding:10px 40px 10px 12px;font-size:14px;outline:none;}
+  .filter-icon{position:absolute;right:10px;width:22px;height:22px;cursor:pointer;opacity:0.8;}
+  .filter-icon:hover{opacity:1;}
+  .btn-primary{background:var(--brand);color:#fff;border:none;border-radius:10px;padding:10px 14px;cursor:pointer;font-size:14px;box-shadow:0 4px 10px rgba(80,109,202,0.25);}
+  .btn-primary:hover{background:#3f58b8;}
+
+  /* Table */
+  .card{background:#fff;border-radius:15px;box-shadow:0 4px 12px rgba(0,0,0,0.05);padding:18px;}
+  table{width:100%;border-collapse:collapse;min-width:740px;}
+  th,td{text-align:left;padding:12px 10px;font-size:14px;}
+  th{background:var(--brand);color:#fff;font-weight:700;}
+  tr:nth-child(even){background:#f4f7ff;}
+  .empty{text-align:center;color:#555;font-size:14px;padding:20px 8px;}
+  .upload-btn{background:#e7ecff;color:#506DCA;border:none;border-radius:8px;padding:6px 10px;font-size:13px;cursor:pointer;}
+  .upload-btn:hover{background:#d9e1ff;}
+
+  /* Modal */
+  .modal{display:none;position:fixed;z-index:999;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.4);align-items:center;justify-content:center;}
+  .modal-content{background:#fff;border-radius:15px;padding:25px;width:400px;box-shadow:0 10px 30px rgba(0,0,0,0.2);}
+  .modal-content h3{color:var(--brand);margin-top:0;}
+  .modal-content input,textarea{width:100%;padding:10px;margin-bottom:10px;border:1.5px solid #ccd4ff;border-radius:8px;outline:none;}
+  .modal-content button{background:var(--brand);color:#fff;border:none;padding:10px 14px;border-radius:10px;cursor:pointer;}
+  .close-btn{float:right;color:#999;font-size:22px;cursor:pointer;}
+  .close-btn:hover{color:#000;}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <img src="{{ url_for('static', filename='images/lof.png') }}" title="Brainalyze" onclick="window.location.href='{{ url_for('home') }}'">
+  <img src="{{ url_for('static', filename='images/home-icon.jpg') }}" title="Home" onclick="window.location.href='{{ url_for('home') }}'">
+  <img src="{{ url_for('static', filename='images/dashboard-icon.jpg') }}" title="Dashboard" onclick="window.location.href='{{ url_for('dashboard') }}'">
+  <img src="{{ url_for('static', filename='images/patient-icon.png') }}" title="Patients" onclick="window.location.href='{{ url_for('patients') }}'">
+  <img src="{{ url_for('static', filename='images/mri-icon.jpg') }}" title="MRI Scans">
+  <img src="{{ url_for('static', filename='images/report.jpg') }}" title="Reports">
+  <img src="{{ url_for('static', filename='images/set.png') }}" title="Settings">
+</div>
+
+<!-- Main -->
+<div class="main">
+  <div class="topbar">
+    <h1 class="page-title">Patients</h1>
+    <div class="doctor-info">
+      <div class="doctor-details">
+        <h2>Welcome Dr. {{ doctor.name if doctor else 'Radiologist' }}</h2>
+        <p>{{ doctor.email if doctor else '' }}</p>
+      </div>
+      <img src="{{ doctor.ProfilePicture if doctor and doctor.ProfilePicture else url_for('static', filename='images/user.png') }}"
+           class="profile-pic" alt="Profile">
+    </div>
+  </div>
+
+  <div class="actions-row">
+    <div class="search-container">
+      <input id="searchBox" class="search-input" type="text" placeholder="Search patients by name or ID...">
+      <img src="{{ url_for('static', filename='images/filter.png') }}" class="filter-icon" id="filterBtn" title="Filter">
+    </div>
+    <button class="btn-primary" id="addBtn">+ Add Patient</button>
+  </div>
+
+  <div class="card">
+    <table id="patientsTable">
+      <thead>
+        <tr>
+          <th>Patient ID</th>
+          <th>Full Name</th>
+          <th>Age</th>
+          <th>Gender</th>
+          <th>Last MRI</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="patientsBody">
+        {% if patients and patients|length > 0 %}
+          {% for p in patients %}
+            <tr>
+              <td>{{ p.id }}</td>
+              <td>{{ p.FullName }}</td>
+              <td>{{ p.Age }}</td>
+              <td>{{ p.Gender }}</td>
+              <td>{{ p.LastMRI if p.LastMRI else '—' }}</td>
+              <td><button class="upload-btn" onclick="openUploadModal('{{ p.id }}', '{{ p.FullName }}')">Upload MRI</button></td>
+            </tr>
+          {% endfor %}
+        {% else %}
+          <tr><td colspan="6" class="empty">No patients found.</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+
+  </div>
+</div>
+
+<!-- Upload Modal -->
+<div id="uploadModal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn" onclick="closeModal()">&times;</span>
+    <h3>Upload MRI for <span id="modalPatientName"></span></h3>
+    <input type="file" id="mriFile" accept=".png,.jpg,.jpeg,.nii,.nii.gz">
+    <textarea id="mriDescription" rows="3" placeholder="Add description..."></textarea>
+    <button onclick="submitUpload()">Upload</button>
+  </div>
+</div>
+
+<script>
+let selectedPatient = null;
+
+function openUploadModal(id, name){
+  selectedPatient = id;
+  document.getElementById("modalPatientName").innerText = name;
+  document.getElementById("uploadModal").style.display = "flex";
+}
+function closeModal(){
+  document.getElementById("uploadModal").style.display = "none";
+}
+async function submitUpload(){
+  const desc = document.getElementById("mriDescription").value.trim();
+  if(!selectedPatient){alert("No patient selected.");return;}
+  const response = await fetch("/upload_mri", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({patient_id:selectedPatient,description:desc})
+  });
+  const data = await response.json();
+  alert(data.message);
+  if(data.status==="success") location.reload();
+}
+</script>
+<!-- Add Patient Modal -->
+<div id="addModal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn" onclick="closeAddModal()">&times;</span>
+    <h3>Add New Patient</h3>
+    <input type="text" id="pName" placeholder="Full Name" required>
+    <input type="number" id="pAge" placeholder="Age" required>
+    <select id="pGender" style="width:100%;padding:10px;margin-bottom:10px;border:1.5px solid #ccd4ff;border-radius:8px;">
+      <option value="">Select Gender</option>
+      <option value="Male">Male</option>
+      <option value="Female">Female</option>
+    </select>
+    <textarea id="pNotes" rows="3" placeholder="Medical Notes (optional)"></textarea>
+    <button onclick="savePatient()">Save Patient</button>
+  </div>
+</div>
+
+<script>
+  // --- فتح واغلاق مودال الاضافة ---
+  const addModal = document.getElementById("addModal");
+  const addBtn = document.getElementById("addBtn");
+  addBtn.addEventListener("click", ()=> addModal.style.display = "flex");
+  function closeAddModal(){ addModal.style.display = "none"; }
+
+  // --- حفظ المريض ---
+  async function savePatient(){
+    const name = document.getElementById("pName").value.trim();
+    const age = document.getElementById("pAge").value.trim();
+    const gender = document.getElementById("pGender").value;
+    const notes = document.getElementById("pNotes").value.trim();
+
+    if(!name || !age || !gender){
+      alert("Please fill all required fields.");
+      return;
+    }
+
+    const response = await fetch("/add_patient", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        FullName: name,
+        Age: parseInt(age),
+        Gender: gender,
+        MedicalNotes: notes
+      })
+    });
+    const data = await response.json();
+    alert(data.message);
+    if(data.status === "success"){
+      location.reload();
+    }
+  }
+</script>
+
+</body>
+</html>
