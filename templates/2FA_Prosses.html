@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Brainalyze | OTP Code</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', 'Cairo', 'Arial', sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f7faff;
+      position: relative;
+    }
+
+    .site-logo {
+      position: absolute;
+      top: 25px;
+      left: 25px;
+      width: 90px;
+      height: auto;
+      cursor: pointer;
+      transition: transform .3s ease, filter .3s ease;
+    }
+
+    .site-logo:hover {
+      transform: scale(1.05);
+      filter: brightness(1.1);
+    }
+
+    .container {
+      position: relative;
+      background: #f2f5fb;
+      padding: 50px 40px 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, .2);
+      text-align: center;
+      width: 340px;
+    }
+
+    h2 {
+      color: #1e2a47;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: #444;
+      margin-bottom: 20px;
+      font-size: .9rem;
+    }
+
+    .code-boxes {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .code-boxes input {
+      width: 40px;
+      height: 45px;
+      text-align: center;
+      border: 1px solid #a5b6d3;
+      border-radius: 8px;
+      font-size: 1.2rem;
+    }
+
+    .code-boxes input:focus {
+      border-color: #1e2a47;
+      box-shadow: 0 0 6px rgba(30, 42, 71, .3);
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 10px;
+      background: #4f67d3;
+      color: white;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: .3s;
+    }
+
+    button:hover {
+      background: #1e40af;
+    }
+
+    .message {
+      font-size: .9rem;
+      margin-top: 10px;
+    }
+
+    .resend {
+      margin-top: 15px;
+      font-size: .85rem;
+    }
+        .resend a {
+      color: #506DCA;
+     
+      cursor: pointer;
+    }
+    .resend:hover{
+      text-decoration: underline;
+    }
+
+    .form-back-arrow {
+      position: absolute;
+      top: 18px;
+      left: 20px;
+      font-size: 1.4rem;
+      color: #1e2a47;
+      text-decoration: none;
+      font-weight: bold;
+      transition: all .3s ease;
+    }
+
+    .form-back-arrow:hover {
+      transform: translateX(-3px);
+      color: #16294e;
+    }
+
+    #verifyBtn {
+      position: relative;
+      overflow: hidden;
+    }
+
+    #verifyBtn:hover {
+      background: #395bb9;
+    }
+
+    #verifyBtn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-loading-spinner {
+      width: 18px;
+      height: 18px;
+      border: 3px solid #ffffff;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: auto;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Brainalyze Logo"
+    class="site-logo" onclick="window.location.href='{{ url_for('index') }}'">
+
+  <div class="container">
+    <a href="{{ url_for('register_login') }}#login" class="form-back-arrow">←</a>
+
+    <h2>Verify Code</h2>
+    <p>Please enter the 6-digit code sent to your phone.</p>
+
+    <div class="code-boxes">
+      <input type="text" maxlength="1">
+      <input type="text" maxlength="1">
+      <input type="text" maxlength="1">
+      <input type="text" maxlength="1">
+      <input type="text" maxlength="1">
+      <input type="text" maxlength="1">
+    </div>
+
+    <button id="verifyBtn">Verify</button>
+    <div id="inLineMessage" class="message"></div>
+    <p class="resend">Didn’t receive a code? <a id="resendLink">Resend</a></p>
+  </div>
+
+  <script>
+    const inputs = document.querySelectorAll('.code-boxes input');
+
+    function setLoading(btn, isLoading) {
+      if (isLoading) {
+        btn.disabled = true;
+        btn.dataset.originalText = btn.innerHTML;
+        btn.innerHTML = `<div class="btn-loading-spinner"></div>`;
+      } else {
+        btn.disabled = false;
+        btn.innerHTML = btn.dataset.originalText;
+      }
+    }
+
+    inputs.forEach((input, index) => {
+      input.addEventListener('input', () => {
+        if (input.value.length === 1 && index < inputs.length - 1) {
+          inputs[index + 1].focus();
+        }
+      });
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !input.value && index > 0) {
+          inputs[index - 1].focus();
+        }
+      });
+    });
+
+    document.getElementById("resendLink").addEventListener("click", () => {
+      alert("A new verification code has been sent to your phone.");
+    });
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import {
+      getAuth,
+      PhoneAuthProvider,
+      linkWithCredential,
+      reauthenticateWithCredential,
+      RecaptchaVerifier
+    } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+
+    import { getFirestore, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC5bb6M-sEVu9JL7mkVLFvkv44k8JIG9Es",
+      authDomain: "brainalyze.firebaseapp.com",
+      projectId: "brainalyze",
+      storageBucket: "brainalyze.firebasestorage.app",
+      messagingSenderId: "930694068293",
+      appId: "1:930694068293:web:72fd905080497218010b2c",
+      measurementId: "G-FJ99J54EYR"
+    };
+
+    const appfb = initializeApp(firebaseConfig);
+    const auth = getAuth(appfb);
+    const db = getFirestore(appfb);
+
+    document.getElementById("verifyBtn").addEventListener("click", async () => {
+      const btn = document.getElementById("verifyBtn");
+      if (btn.disabled) return;
+      setLoading(btn, true);
+
+      const inputs = document.querySelectorAll(".code-boxes input");
+      const otpCode = Array.from(inputs).map(i => i.value).join("");
+      const msg = document.getElementById("inLineMessage");
+      const verificationId = sessionStorage.getItem("verificationId");
+      const uid = sessionStorage.getItem("uid");
+
+      if (!otpCode || otpCode.length !== 6) {
+        msg.textContent = "Please enter the 6-digit code.";
+        msg.className = "message error show";
+        setLoading(btn, false);
+        return;
+      }
+
+      try {
+        const cred = PhoneAuthProvider.credential(verificationId, otpCode);
+        const user = auth.currentUser;
+
+        if (user) {
+          try {
+            await linkWithCredential(user, cred);
+            await user.reload();
+          } catch (err) {
+            if (err.code === "auth/provider-already-linked" || err.code === "auth/credential-already-in-use") {
+              await reauthenticateWithCredential(user, cred);
+              await user.reload();
+            } else {
+              throw err;
+            }
+          }
+
+          await updateDoc(doc(db, "Radiologists", uid), { TwoFactorEnabled: true });
+          sessionStorage.removeItem("verificationId");
+
+msg.style.color = "green";
+          msg.textContent = "Verification successful. Redirecting...";
+          msg.className = "message success show";
+
+          setTimeout(() => {
+            window.location.href = "/login_from_firebase?uid=" + uid;
+          }, 1000);
+
+        } else {
+          msg.style.color = "red";
+          msg.textContent = "No logged-in user found. Please login again.";
+          msg.className = "message error show";
+          setLoading(btn, false);
+        }
+
+      } catch (error) {
+        console.error(error);
+        msg.textContent = "Invalid or expired code. Try again.";
+        msg.className = "message error show";
+        setLoading(btn, false);
+      }
+    });
+
+    document.getElementById("resendLink").addEventListener("click", async () => {
+      const msg = document.getElementById("inLineMessage");
+      const phoneNumber = sessionStorage.getItem("phoneNumber");
+
+      if (!phoneNumber) {
+        msg.textContent = "No phone number found in session. Please login again.";
+        msg.style.color = "red";
+        return;
+      }
+
+      try {
+        if (window.recaptchaVerifier && typeof window.recaptchaVerifier.clear === "function") {
+          window.recaptchaVerifier.clear();
+        }
+        window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", { size: "invisible" });
+
+        const provider = new PhoneAuthProvider(auth);
+        const newVerificationId = await provider.verifyPhoneNumber(phoneNumber, window.recaptchaVerifier);
+
+        sessionStorage.setItem("verificationId", newVerificationId);
+
+        msg.textContent = "New verification code sent!";
+        msg.style.color = "green";
+      } catch (error) {
+        console.error(error);
+        msg.textContent = "Failed to resend code. Try again later.";
+        msg.style.color = "red";
+      }
+    });
+  </script>
+
+  <div id="recaptcha-container"></div>
+
+</body>
+
+</html>

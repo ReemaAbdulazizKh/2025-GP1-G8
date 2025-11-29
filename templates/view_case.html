@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Brainalyze | Case Details</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Cairo:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/case_view.css') }}">
+
+  <style>
+.toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-10px);
+  background: #4ade80;
+  color: white;
+  padding: 14px 26px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+  opacity: 0;
+  transition: all .35s ease;
+  z-index: 999999;
+  font-family: 'Poppins';
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.toast.hidden {
+  display: none;
+}
+:root {
+  --brand: #506DCA;
+  --bg: #f7faff;
+  --card: #ffffff;
+  --text: #1e2a47;
+  --muted: #6a7393;
+  --border: #e6ebff;
+}
+body {
+  margin: 0;
+  font-family: 'Poppins', 'Cairo', Arial, sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  display: flex;
+}
+.main-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.main {
+  padding: 28px;
+  margin-top: 3%;
+}
+.case-summary-card {
+  background: #fff;
+  border-radius: 18px;
+  padding: 26px;
+  border: 1px solid var(--border);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  margin-bottom: 26px;
+}
+.case-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.case-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tp-btn {
+  background: var(--brand);
+  color: white;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-size: 15px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: .25s ease;
+  box-shadow: 0 4px 12px rgba(80,109,202,0.25);
+}
+.tp-btn:hover {
+  background: #3f58b8;
+  transform: translateY(-1px);
+}
+.tag-pill {
+  background: #e8ffe9;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-right: 10px;
+  color: #1c7a3c;
+}
+textarea {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  border: 1.5px solid #ccd4ff;
+  border-radius: 12px;
+  padding: 12px;
+  resize: none;
+  font-family: inherit;
+}
+.btn-save {
+  background: var(--brand);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 26px;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(80,109,202,0.25);
+}
+.btn-cancel {
+  background: #efefef;
+  border-radius: 12px;
+  padding: 12px 26px;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  font-weight: 500;
+}
+.scans-card {
+  background: #fff;
+  border-radius: 18px;
+  padding: 26px;
+  border: 1px solid var(--border);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  margin-top: 35px;
+}
+.scan-card {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 14px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: #fff;
+  margin-bottom: 12px;
+}
+.scan-thumb img {
+  width: 120px;
+  height: 90px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+.add-scan-btn {
+  background: var(--brand);
+  color: white;
+  padding: 10px 22px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(80,109,202,0.25);
+}
+.view-scan-btn {
+  background: #506DCA;
+  color: #fff;
+  padding: 6px 16px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  display: inline-block;
+  transition: 0.25s ease;
+  box-shadow: 0 3px 8px rgba(80, 109, 202, 0.25);
+}
+.view-scan-btn:hover {
+  background: #3f57ac;
+  transform: translateY(-2px);
+}
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(2px);
+  z-index: 1666;
+}
+.sidebar-overlay.active {
+  display: block;
+}
+  </style>
+</head>
+
+<body>
+ <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <aside class="sidebar">
+    <div class="brand" onclick="window.location.href='{{ url_for('home') }}'">
+      <img src="{{ url_for('static', filename='images/logo.png') }}">
+      <span>Brainalyze</span>
+    </div>
+
+    <nav class="nav">
+      <a href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='images/home-icon.jpg') }}"><span>Home</span></a>
+      <a class="active" href="{{ url_for('patients') }}"><img src="{{ url_for('static', filename='images/patient-icon.png') }}"><span>Patients</span></a>
+      <a href="{{ url_for('profile') }}"><img src="{{ url_for('static', filename='images/user-icon.jpg') }}"><span>Profile</span></a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="#" id="logoutBtn" class="logout">
+        <span>Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <div class="main-wrapper">
+    <div id="docheader">
+      <div style="display:flex; align-items:center; gap:15px;">
+        <button class="toggle-btn" id="toggleBtn">
+          <img src="{{ url_for('static', filename='images/sidebar_icon.png') }}" width="32">
+        </button>
+        <span id="pageTitle">Case Details</span>
+      </div>
+
+      <div class="doctor-info">
+        <div class="doctor-details">
+          <h2>Dr. {{ doctor.name }}</h2>
+          <p>{{ doctor.email }}</p>
+        </div>
+        <img src="{{ doctor.ProfilePicture }}" class="profile-pic">
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="bc">
+        <a href="{{ url_for('patients') }}" style="color:#7d7d7d; text-decoration:none;">Patients</a> ›
+        <a href="{{ url_for('patient_profile', patient_id=patient_id) }}" style="color:#7d7d7d; text-decoration:none;">Profile</a> ›
+        <span style="color:#7d7d7d;">Case {{ case_number }}</span>
+      </div>
+
+      <div class="case-summary-card">
+        <div class="case-top">
+          <div class="case-title">
+            Case {{ case_number }} — {{ case.Diagnosis or "Pending Diagnosis" }}
+          </div>
+          <button id="tp_edit_btn" class="tp-btn">Edit treatment plan</button>
+        </div>
+
+        <div style="margin-top:16px;">
+          <span class="tag-pill">{{ case.Status }}</span><br><br>
+          <span style="margin-left:10px;">Duration: {{ case.StartDate }} — {{ case.EndDate or "Present" }}</span><br><br>
+          <span style="margin-left:10px;">Last Scan: {{ case.LastUpdateFormatted }}</span>
+        </div>
+
+        <div class="tp-section">
+          <h4 style="font-size:13px; font-weight:600; color:#1e2a47; margin-bottom:6px;">
+            Treatment Plan:
+          </h4>
+
+          <p id="tp_text" style="font-size:13px; margin-bottom:6px; color:#374151;">
+            {{ case.TreatmentPlan or "—" }}
+          </p>
+
+          <form
+            id="tp_form"
+            action="{{ url_for('update_treatment_plan', patient_id=patient_id, case_id=case_id) }}"
+            method="POST"
+            style="display:none; margin-top:14px;"
+          >
+            <textarea id="tp_input" name="treatment_plan">{{ case.TreatmentPlan }}</textarea>
+
+            <div style="margin-top:18px; display:flex; gap:18px;">
+              <button type="submit" class="btn-save">Save</button>
+              <button type="button" id="tp_cancel_btn" class="btn-cancel">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="scans-card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h3 style="font-size:20px; font-weight:700;">MRI Scans</h3>
+
+          <a href="{{ url_for('scans', patient_id=patient_id, case_id=case_id) }}" class="add-scan-btn">
+            + Add Scan
+          </a>
+        </div>
+
+        {% if scans %}
+          {% for scan in scans|sort(attribute='UploadDate') %}
+            <div class="scan-card">
+              <div class="scan-thumb">
+                <img src="{{ scan.MRIFilePath }}">
+              </div>
+
+              <div>
+                <div class="scan-name" style="font-weight:600;">MRI Scan #{{ loop.index }}</div>
+                <div class="scan-meta" style="font-size:13px; color:#6b7280;">Uploaded: {{ scan.UploadDate }}</div>
+
+                <a class="view-scan-btn"
+                   href="{{ url_for('view_scan', scan_id=scan.id, scan_number=loop.index, case_id=case_id, case_number=case_number) }}">
+                   View Scan
+                </a>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p style="color:#777; margin-top:16px;">No scans added yet.</p>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <footer class="footer-medical">
+      <div class="fm-wrapper">
+        <div class="fm-left">
+          <img src="/static/images/logo.png" class="fm-logo" alt="Brainalyze">
+          <span class="fm-copy">© 2025 Brainalyze</span>
+        </div>
+
+        <div class="fm-center">
+          <span class="fm-title">FOLLOW US</span>
+          <div class="fm-icons">
+            <a style="text-decoration: none; color: black;" href="https://x.com/brainalyze_co">
+              <img src="/static/images/twitter.png" alt=""><br> @brainalyze_co
+            </a>
+          </div>
+        </div>
+
+        <div class="fm-right">
+          <span class="fm-title">CONTACT</span>
+          <p class="fm-contact">+966530782404</p>
+          <p class="fm-contact">443200466@student.ksu.edu.sa</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+const toggleBtn = document.getElementById("toggleBtn");
+const sidebar = document.querySelector(".sidebar");
+const docheader = document.getElementById("docheader");
+const overlay = document.getElementById("sidebarOverlay");
+
+toggleBtn.addEventListener("click", () => {
+  if (window.innerWidth > 768) {
+    sidebar.classList.toggle("collapsed");
+  } else {
+    sidebar.classList.toggle("active");
+    overlay.classList.toggle("active");
+  }
+});
+overlay.addEventListener("click", () => {
+  sidebar.classList.remove("active");
+  overlay.classList.remove("active");
+});
+const tpText = document.getElementById("tp_text");
+const tpForm = document.getElementById("tp_form");
+const tpEditBtn = document.getElementById("tp_edit_btn");
+const tpCancelBtn = document.getElementById("tp_cancel_btn");
+const tpInput = document.getElementById("tp_input");
+
+tpEditBtn.addEventListener("click", () => {
+  tpText.style.display = "none";
+  tpEditBtn.style.display = "none";
+  tpForm.style.display = "block";
+  tpInput.focus();
+});
+tpCancelBtn.addEventListener("click", () => {
+  tpForm.style.display = "none";
+  tpText.style.display = "block";
+  tpEditBtn.style.display = "inline-block";
+});
+function autoResize(el) {
+  el.style.height = "auto";
+  el.style.height = el.scrollHeight + "px";
+}
+if (tpInput) {
+  autoResize(tpInput);
+  tpInput.addEventListener("input", () => autoResize(tpInput));
+}
+
+document.querySelector("#tp_form").addEventListener("submit", function () {
+  setTimeout(() => {
+    const t = document.getElementById("tpToast");
+    t.classList.remove("hidden");
+    t.classList.add("show");
+    setTimeout(() => {
+      t.classList.remove("show");
+      setTimeout(() => t.classList.add("hidden"), 300);
+    }, 2000);
+  }, 300);
+});
+  </script>
+
+<div id="tpToast" class="toast hidden">
+  Treatment updated successfully!
+</div>
+
+</body>
+</html>

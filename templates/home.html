@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Brainalyze | Home</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+
+  <style>
+    body {
+      font-family: "Poppins", "Cairo", Arial, sans-serif;
+      background-color: #f7faff;
+      display: flex;
+      flex-direction: row;
+    }
+
+    .sidebar { z-index: 1000 !important; }
+
+    .main {
+      display: flex;
+      flex-direction: column;
+      padding: 30px;
+      align-items: center;
+      transition: margin-left .35s ease;
+      min-height: 100vh;
+    }
+
+    .view-btn {
+      background: #e7ecff;
+      color: #506DCA;
+      padding: 8px 20px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 500;
+      margin-left: 66px;
+      border: none;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .view-btn:hover {
+      background: #d8e0ff;
+    }
+
+    #scansTable {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 10px;
+    }
+
+    #scansTable th {
+      background: #506DCA;
+      color: white;
+      padding: 14px;
+      border-radius: 12px 12px 0 0;
+      font-size: 16px;
+    }
+
+    #scansTable td {
+      background: #ffffff;
+      padding: 14px;
+      border-radius: 12px;
+      text-align: center;
+      font-size: 15px;
+      color: #1e2a47;
+    }
+
+    .load-more-btn {
+      background: #506DCA;
+      padding: 10px 22px;
+      color: white;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      transition: 0.3s;
+      font-size: 14px;
+    }
+
+    .load-more-btn:hover {
+      background: #3f57b3;
+    }
+
+    .hidden-row { display: none; }
+
+    @media (max-width: 768px) {
+      html, body {
+        overflow-x: hidden !important;
+      }
+
+      .sidebar {
+        position: fixed !important;
+        top: 0;
+        left: -240px;
+        width: 200px !important;
+        height: 100vh;
+        background: #fff;
+        z-index: 2000 !important;
+        transition: 0.35s ease !important;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+      }
+
+      .footer-medical {
+        margin-left: 0 !important;
+        width: 100% !important;
+      }
+
+      .fm-wrapper {
+        display: flex;
+        flex-direction: row !important;
+        justify-content: space-between;
+        align-items: center;
+        text-align: center !important;
+        gap: 10px !important;
+        flex-wrap: nowrap;
+      }
+
+      .fm-left,
+      .fm-center,
+      .fm-right {
+        flex: 0 0 auto;
+      }
+
+      .sidebar.active {
+        left: 0 !important;
+      }
+
+      .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.35);
+        backdrop-filter: blur(2px);
+        z-index: 1600;
+      }
+
+      .sidebar-overlay.active {
+        display: block;
+      }
+
+      #docheader {
+        left: 0 !important;
+        width: 94% !important;
+        position: fixed !important;
+        top: 0 !important;
+        z-index: 1500 !important;
+        background: #f7faff !important;
+      }
+
+      .main {
+        margin-top: 110px !important;
+        padding: 15px !important;
+      }
+
+      .welcome-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px !important;
+        gap: 20px;
+      }
+
+      .welcome-left h2 {
+        font-size: 20px !important;
+      }
+
+      .welcome-stats {
+        flex-direction: row !important;
+        justify-content: center !important;
+        gap: 20px;
+      }
+
+      #scansTable th, #scansTable td {
+        font-size: 14px !important;
+        padding: 10px !important;
+      }
+
+      .view-btn {
+        padding: 6px 14px !important;
+        font-size: 13px !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<aside class="sidebar">
+  <div class="brand" onclick="window.location.href='{{ url_for('home') }}'">
+    <img src="{{ url_for('static', filename='images/logo.png') }}"><span>Brainalyze</span>
+  </div>
+
+  <nav class="nav">
+    <a href="{{ url_for('home') }}" class="active">
+      <img src="{{ url_for('static', filename='images/home-icon.jpg') }}"><span>Home</span>
+    </a>
+
+    <a href="{{ url_for('patients') }}">
+      <img src="{{ url_for('static', filename='images/patient-icon.png') }}"><span>Patients</span>
+    </a>
+
+    <a href="{{ url_for('profile') }}">
+      <img src="{{ url_for('static', filename='images/user-icon.jpg') }}"><span>Profile</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <a href="#" id="logoutBtn" class="logout">
+      <span>Logout</span>
+    </a>
+  </div>
+</aside>
+
+<div class="popup-overlay" id="logoutPopup">
+  <div class="popup-box">
+    <h2>Confirm Logout</h2>
+    <p>Are you sure you want to log out?</p>
+    <div class="popup-buttons">
+      <button class="popup-cancel" id="cancelLogout">Cancel</button>
+      <button class="popup-confirm" id="confirmLogout">Yes, Logout</button>
+    </div>
+  </div>
+</div>
+
+<div class="main-wrapper">
+
+  <div id="docheader">
+    <div style="display:flex; align-items:center; gap:15px;">
+      <button class="toggle-btn" id="toggleBtn">
+        <img src="{{ url_for('static', filename='images/sidebar_icon.png') }}" width="32" height="32">
+      </button>
+      <span id="pageTitle">Home</span>
+    </div>
+
+    <div class="doctor-info">
+      <div class="doctor-details">
+        <h2>Dr. {{ doctor.name }}</h2>
+        <p>{{ doctor.email }}</p>
+      </div>
+      <img src="{{ doctor.ProfilePicture if doctor.ProfilePicture else url_for('static', filename='images/user.png') }}"
+           class="profile-pic"
+           onclick="window.location.href='{{ url_for('profile') }}'">
+    </div>
+  </div>
+
+  <div class="main">
+
+    <div class="brain-section">
+      <div class="brain-circle">
+        <img src="{{ url_for('static', filename='images/brain1.png') }}">
+      </div>
+    </div>
+
+    <div class="welcome-card">
+      <div class="welcome-left">
+        <h2>Dr. {{ doctor.name }}</h2>
+        <p>Here’s your quick overview for today.</p>
+      </div>
+
+      <div class="welcome-stats">
+        <div class="stat-box">
+          <div class="stat-number">{{ total_patients }}</div>
+          <div class="stat-label">Patients</div>
+        </div>
+
+        <div class="stat-box">
+          <div class="stat-number">{{ completed_scans }}</div>
+          <div class="stat-label">Completed Scans</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="scans-container">
+      <h3>Latest MRI Scans</h3>
+
+      <table id="scansTable">
+        <thead>
+        <tr>
+          <th>Patient</th>
+          <th>Upload Date</th>
+        </tr>
+        </thead>
+
+        <tbody id="tableBody">
+        {% for c in cases|sort(attribute='UploadDate') %}
+        <tr class="{% if loop.index > 5 %}hidden-row{% endif %}">
+          <td>{{ c.PatientName }}</td>
+          <td style="gap: 13px;">{{ c.UploadDate }} <button  class="view-btn" onclick="goToCase('{{ c.id }}')">View</button></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+
+      {% if cases|length > 5 %}
+      <div style="text-align:center; margin-top:15px;">
+        <button class="load-more-btn" id="loadMoreBtn">Load More</button>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <footer class="footer-medical">
+    <div class="fm-wrapper">
+      <div class="fm-left">
+        <img src="/static/images/logo.png" class="fm-logo" alt="Brainalyze">
+        <span class="fm-copy">© 2025 Brainalyze</span>
+      </div>
+
+      <div class="fm-center">
+        <span class="fm-title">FOLLOW US</span>
+        <div class="fm-icons">
+          <a style="text-decoration: none; color: black;" href="https://x.com/brainalyze_co"><img src="/static/images/twitter.png" alt=""><br> @brainalyze_co</a>
+        </div>
+      </div>
+
+      <div class="fm-right">
+        <span class="fm-title">CONTACT</span>
+        <p class="fm-contact">+966530782404</p>
+        <p class="fm-contact">443200466@student.ksu.edu.sa</p>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  const toggleBtn = document.getElementById("toggleBtn");
+  const sidebar = document.querySelector(".sidebar");
+  const overlay = document.getElementById("sidebarOverlay");
+  const docheader = document.getElementById("docheader");
+
+  if (window.innerWidth > 768) {
+    toggleBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("collapsed");
+
+      if (sidebar.classList.contains("collapsed")) {
+        docheader.style.left = "85px";
+        docheader.style.width = "90%";
+      } else {
+        docheader.style.left = "15%";
+        docheader.style.width = "81%";
+      }
+    });
+  }
+
+  toggleBtn.addEventListener("click", () => {
+    if (window.innerWidth <= 768) {
+      sidebar.classList.toggle("active");
+      overlay.classList.toggle("active");
+    }
+  });
+
+  overlay.addEventListener("click", () => {
+    sidebar.classList.remove("active");
+    overlay.classList.remove("active");
+  });
+
+  function goToCase(id) {
+    window.location.href = "view_scan?scan_id=" + id;
+  }
+
+  const loadBtn = document.getElementById("loadMoreBtn");
+  if (loadBtn) {
+    const rows = [...document.querySelectorAll("#tableBody tr")];
+    let visibleCount = 5;
+
+    loadBtn.addEventListener("click", () => {
+      visibleCount += 5;
+      rows.forEach((row, i) => {
+        if (i < visibleCount) row.classList.remove("hidden-row");
+      });
+      if (visibleCount >= rows.length) loadBtn.style.display = "none";
+    });
+  }
+
+  const logoutBtn = document.getElementById("logoutBtn");
+  const logoutPopup = document.getElementById("logoutPopup");
+
+  logoutBtn.onclick = e => { e.preventDefault(); logoutPopup.style.display = "flex"; };
+  document.getElementById("cancelLogout").onclick = () => logoutPopup.style.display = "none";
+  document.getElementById("confirmLogout").onclick = () => window.location.href = "{{ url_for('logout') }}";
+</script>
+
+</body>
+</html>

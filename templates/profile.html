@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <meta charset="UTF-8">
+  <title>Brainalyze | Profile</title>
+  <style>
+    .edit-icon {
+      width: 30%;
+      height: 28px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .edit-icon:hover {
+      transform: scale(1.2);
+    }
+    .profile-header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 25px;
+      margin-left: 22%;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="toast-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="toast {{ category }}">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+  </div>
+
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <aside class="sidebar">
+    <div class="brand" onclick="window.location.href='{{ url_for('home') }}'">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Brainalyze">
+      <span>Brainalyze</span>
+    </div>
+
+    <nav class="nav">
+      <a href="{{ url_for('home') }}">
+        <img src="{{ url_for('static', filename='images/home-icon.jpg') }}" alt=""><span>Home</span>
+      </a>
+      <a href="{{ url_for('patients') }}">
+        <img src="{{ url_for('static', filename='images/patient-icon.png') }}" alt=""><span>Patients</span>
+      </a>
+      <a href="{{ url_for('profile') }}" class="active">
+        <img src="{{ url_for('static', filename='images/user-icon.jpg') }}" alt=""><span>Profile</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="#" id="logoutBtn" class="logout">
+        <span>Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <div class="popup-overlay" id="logoutPopup">
+    <div class="popup-box">
+      <h2>Confirm Logout</h2>
+      <p>Are you sure you want to log out?</p>
+      <div class="popup-buttons">
+        <button class="popup-cancel" id="cancelLogout">Cancel</button>
+        <button class="popup-confirm" id="confirmLogout">Yes, Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-wrapper">
+
+    <div id="docheader">
+      <div style="display:flex; align-items:center; gap:15px;">
+        <button class="toggle-btn" id="toggleBtn">
+          <img src="{{ url_for('static', filename='images/sidebar_icon.png') }}" alt="menu" width="32" height="32">
+        </button>
+        <span id="pageTitle">Profile</span>
+      </div>
+
+      <div class="doctor-info">
+        <div class="doctor-details">
+          <h2>Dr. {{ doctor.name }}</h2>
+          <p>{{ doctor.email }}</p>
+        </div>
+        <img
+          src="{{ doctor.ProfilePicture if doctor.ProfilePicture else url_for('static', filename='images/user.png') }}"
+          class="profile-pic" alt="Profile" onclick="window.location.href='{{ url_for('profile') }}'">
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="container">
+
+        <div class="profile-header">
+          <h2>My Profile</h2>
+          <button alt="Edit" class="edit-icon" id="editIcon" title="Edit Profile" style="border:none;background-color:#ffffff00;border-radius:12px;cursor:pointer;font-size:13px;display:flex; gap:6px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 20h9" />
+              <path d="M16.5 3.5l4 4L7 21H3v-4L16.5 3.5z" />
+            </svg>
+            Edit
+          </button>
+        </div>
+
+        <form id="profileForm" enctype="multipart/form-data" onsubmit="return validateForm()">
+
+          <div class="profile-picture-wrapper">
+            <label>
+              <img
+                src="{{ doctor.ProfilePicture if doctor.ProfilePicture else url_for('static', filename='images/user-icon.jpg') }}"
+                class="profile-pic" alt="Profile Picture" id="previewImg">
+            </label>
+
+            <p class="profile-hint">Click the image to change your photo</p>
+
+            <input type="file" id="profile_pic" name="profile_pic" accept="image/*" style="display:none;"
+              onchange="previewImage(event)">
+          </div>
+
+          <label for="name">Full Name</label>
+          <input type="text" id="name" name="name" value="{{ doctor.name }}" required pattern="^[A-Za-z\s]{3,50}$"
+            disabled>
+
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" value="{{ doctor.email }}" required disabled>
+
+          <label for="phone">Phone</label>
+
+          <div class="phone-display">
+            {{ doctor.phone }}
+          </div>
+
+          <div class="phone-input">
+            <span class="flag">
+              <img src="{{ url_for('static', filename='images/saudi-flag.png') }}" class="flag-img">
+              +966
+            </span>
+
+            <input type="tel" id="phone" name="phone"
+              value="{{ doctor.phone[4:] if doctor.phone and doctor.phone.startswith('+966') else doctor.phone }}"
+              placeholder="5XXXXXXXX" pattern="^5\d{8}$" maxlength="9" disabled>
+          </div>
+
+          <label for="specialty">Specialty</label>
+          <input type="text" id="specialty" name="specialty" value="{{ doctor.specialty }}" pattern="^[A-Za-z\s]{3,25}$"
+            disabled>
+
+          <div class="button-row">
+            <button type="submit" class="save-btn" id="saveBtn" style="display:none;">Save Changes</button>
+            <button type="button" class="cancel-btn" id="cancelBtn" style="display:none;">Cancel</button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+    <footer class="footer-medical">
+      <div class="fm-wrapper">
+        <div class="fm-left">
+          <img src="/static/images/logo.png" class="fm-logo" alt="Brainalyze">
+          <span class="fm-copy">© 2025 Brainalyze</span>
+        </div>
+
+        <div class="fm-center">
+          <span class="fm-title">FOLLOW US</span>
+          <div class="fm-icons">
+            <a style="text-decoration: none; color: black;" href="https://x.com/brainalyze_co">
+              <img src="/static/images/twitter.png" alt=""><br> @brainalyze_co
+            </a>
+          </div>
+        </div>
+
+        <div class="fm-right">
+          <span class="fm-title">CONTACT</span>
+          <p class="fm-contact">+966530782404</p>
+          <p class="fm-contact">443200466@student.ksu.edu.sa</p>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    function previewImage(event) {
+      const img = document.getElementById('previewImg');
+      img.src = URL.createObjectURL(event.target.files[0]);
+    }
+
+    function validateForm() {
+      const phoneInput = document.getElementById("phone");
+      const rawPhone = phoneInput.value.trim();
+      let hidden = document.createElement("input");
+      hidden.type = "hidden";
+      hidden.name = "phone";
+      hidden.value = "+966" + rawPhone;
+      document.querySelector("form").appendChild(hidden);
+      return true;
+    }
+
+    document.getElementById("previewImg").addEventListener("click", function () {
+      document.getElementById("profile_pic").click();
+    });
+
+    document.getElementById("editIcon").addEventListener("click", function () {
+      const inputs = document.querySelectorAll("input");
+      inputs.forEach(input => input.disabled = false);
+      document.getElementById("saveBtn").style.display = "inline-block";
+      document.getElementById("cancelBtn").style.display = "inline-block";
+      document.querySelector(".container").classList.add("edit-mode");
+      document.querySelector(".profile-hint").style.display = "block";
+    });
+  </script>
+
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      document.querySelector(".profile-hint").style.display = "none";
+    });
+
+    const toggleBtn = document.getElementById("toggleBtn");
+    const sidebar = document.querySelector(".sidebar");
+    const overlay = document.getElementById("sidebarOverlay");
+    const pageTitle = document.getElementById("pageTitle");
+
+    const currentPath = window.location.pathname;
+
+    if (currentPath.includes("patients")) pageTitle.textContent = "Patients";
+    else if (currentPath.includes("profile")) pageTitle.textContent = "Profile";
+    else pageTitle.textContent = "Home";
+
+    toggleBtn.addEventListener("click", () => {
+      if (window.innerWidth > 768) {
+        sidebar.classList.toggle("collapsed");
+      } else {
+        sidebar.classList.toggle("active");
+        overlay.classList.toggle("active");
+      }
+    });
+
+    overlay.addEventListener("click", () => {
+      sidebar.classList.remove("active");
+      overlay.classList.remove("active");
+    });
+
+    const logoutBtn = document.getElementById("logoutBtn");
+    const logoutPopup = document.getElementById("logoutPopup");
+    const confirmLogout = document.getElementById("confirmLogout");
+    const cancelLogout = document.getElementById("cancelLogout");
+
+    logoutBtn.addEventListener("click", function (event) {
+      event.preventDefault();
+      logoutPopup.style.display = "flex";
+    });
+
+    cancelLogout.addEventListener("click", function () {
+      logoutPopup.style.display = "none";
+    });
+
+    confirmLogout.addEventListener("click", function () {
+      logoutPopup.style.display = "none";
+      sessionStorage.clear();
+      localStorage.clear();
+      window.location.href = "{{ url_for('logout') }}";
+    });
+
+    window.addEventListener("click", function (event) {
+      if (event.target === logoutPopup) {
+        logoutPopup.style.display = "none";
+      }
+    });
+  </script>
+
+  <script>
+    const profileContainer = document.querySelector(".container");
+    const editIcon = document.getElementById("editIcon");
+    const saveBtn = document.getElementById("saveBtn");
+    const cancelBtn = document.getElementById("cancelBtn");
+    const hint = document.querySelector(".profile-hint");
+    const inputs = document.querySelectorAll("input");
+    const previewImg = document.getElementById("previewImg");
+
+    editIcon.addEventListener("click", () => {
+      profileContainer.classList.add("edit-mode");
+      inputs.forEach(i => i.disabled = false);
+      saveBtn.style.display = "inline-block";
+      cancelBtn.style.display = "inline-block";
+      hint.style.display = "block";
+      previewImg.style.pointerEvents = "auto";
+    });
+
+    cancelBtn.addEventListener("click", () => {
+      profileContainer.classList.remove("edit-mode");
+      inputs.forEach(i => i.disabled = true);
+      saveBtn.style.display = "none";
+      cancelBtn.style.display = "none";
+      hint.style.display = "none";
+      previewImg.style.pointerEvents = "none";
+    });
+  </script>
+
+  <script>
+    setTimeout(() => {
+      document.querySelectorAll(".toast").forEach(t => {
+        t.style.transition = "opacity 0.6s, transform 0.6s";
+        t.style.opacity = "0";
+        t.style.transform = "translateY(-20px)";
+        setTimeout(() => t.remove(), 600);
+      });
+    }, 1500);
+  </script>
+
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll(".toast").forEach(t => {
+        t.style.opacity = "1";
+        t.style.transform = "translateY(0)";
+        setTimeout(() => {
+          t.style.transition = "opacity .6s, transform .6s";
+          t.style.opacity = "0";
+          t.style.transform = "translateY(-20px)";
+          setTimeout(() => t.remove(), 600);
+        }, 2200);
+      });
+    });
+  </script>
+
+  <script>
+    document.getElementById("saveBtn").addEventListener("click", function (e) {
+      e.preventDefault();
+      let form = document.getElementById("profileForm");
+      let formData = new FormData(form);
+      const phoneInput = document.getElementById("phone");
+      if (phoneInput && phoneInput.value.trim() !== "") {
+        formData.set("phone", "+966" + phoneInput.value.trim());
+      }
+
+      fetch("/profile/update_ajax", {
+        method: "POST",
+        body: formData
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === "success") {
+            document.querySelector(".doctor-details h2").textContent = "Dr. " + data.updated_data.FullName;
+            document.querySelector(".doctor-details p").textContent = data.updated_data.Email;
+            if (data.updated_data.ProfilePicture) {
+              document.querySelector(".profile-pic").src = data.updated_data.ProfilePicture;
+            }
+            showToast("Profile updated successfully!", "success");
+            cancelBtn.click();
+          } else {
+            showToast("Update failed.", "error");
+          }
+        })
+        .catch(() => showToast("Server error.", "error"));
+    });
+
+    function showToast(message, type) {
+      const toast = document.createElement("div");
+      toast.className = "toast " + type;
+      toast.textContent = message;
+      document.querySelector(".toast-container").appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = "1";
+        toast.style.transform = "translateY(0)";
+      }, 50);
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(-20px)";
+        setTimeout(() => toast.remove(), 600);
+      }, 2000);
+    }
+  </script>
+
+</body>
+
+</html>

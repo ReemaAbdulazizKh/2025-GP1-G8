@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Brainalyze | MRI Scan Analysis</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    .progress-circle-container {
+      display: none;
+      width: 180px;
+      height: 180px;
+      margin: 30px auto;
+      position: relative;
+    }
+
+    .progress-circle {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      border: 12px solid #dce3ff;
+      border-top-color: #6176ff;
+      animation: spin 1s linear infinite;
+    }
+
+    .progress-circle-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 28px;
+      font-weight: 700;
+      color: #1e2a47;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    :root {
+      --brand: #4f67d3;
+      --ink: #0f1221;
+      --muted: #6b7280;
+      --border: #dbe1f4;
+      --bg1: #f7faff;
+      --bg2: #f7faff;
+      --glass-bg: rgba(255, 255, 255, 0.55);
+      --glass-brd: rgba(255, 255, 255, 0.35);
+      --radius: 16px;
+    }
+
+    body {
+      font-family: 'Poppins', 'Cairo', 'Arial', sans-serif;
+      background: #f7faff;
+    }
+
+    .sidebar.collapsed~.page-frame {
+      margin-left: 85px;
+    }
+
+    .sidebar.collapsed~.main #toggleHeader {
+      left: 95px;
+    }
+
+    .main-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .main {
+      padding: 28px;
+      margin-top: 3%;
+      transition: margin-left 0.35s ease;
+    }
+
+    .upload-card {
+      padding: 28px;
+      margin-bottom: 22px;
+      animation: rise .6s ease both;
+    }
+
+    .upload-card h2 {
+      margin: 0 0 14px;
+      font-size: 18px;
+      color: #1f2240;
+      font-weight: 700;
+    }
+
+    .upload-box {
+      border: 2px dashed var(--border);
+      border-radius: 20px;
+      background: #ffffff80;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 220px;
+      width: 100%;
+      color: var(--muted);
+      cursor: pointer;
+      transition: border-color .25s, background .25s, transform .25s;
+    }
+
+    .upload-box:hover {
+      border-color: var(--brand);
+      background: #ffffffcc;
+      transform: translateY(-2px);
+    }
+
+    .upload-box i {
+      font-size: 34px;
+      color: #9aa3d3;
+      margin-bottom: 10px;
+    }
+
+    .upload-box p {
+      margin: 0;
+    }
+
+    .upload-box small {
+      margin-top: 4px;
+      color: #9aa3c5;
+    }
+
+    #fileInput {
+      display: none;
+    }
+
+    #preview {
+      width: 100%;
+      height: 260px;
+      border-radius: 12px;
+      object-fit: contain;
+      display: none;
+      background-color: #0b0b10;
+      padding: 0;
+      margin: 0;
+      border: none;
+    }
+
+    .btns {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      margin-top: 18px;
+      width: 100%;
+      padding: 0 4px;
+    }
+
+    .btns label,
+    .btns button {
+      padding: 8px 14px;
+      flex: 1;
+      border-radius: 10px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btns label {
+      background-color: #95a5a6;
+      color: white;
+      border: 1.5px solid #e4e7f7;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .btns label:hover {
+      background-color: #7f8c8d;
+      transform: translateY(-1px);
+    }
+
+    .btns button {
+      background-color: var(--brand);
+      color: white;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .btns button:hover {
+      background-color: #3f58b8;
+      transform: translateY(-1px);
+    }
+
+    .btn-dark {
+      align-self: center;
+      background: #4f67d3;
+      color: #fff;
+      border: 1px solid #4f67d3;
+      align-items: center;
+      padding: 8px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      gap: 8px;
+    }
+
+    .btn-dark:hover {
+      background: #3f58b8;
+      border-color: #3f58b8;
+    }
+
+    .btn-ghost {
+      background: #ffffff;
+      color: #0f1221;
+      border: 1px solid #dee3fb;
+    }
+
+    .progress-card {
+      display: none;
+      padding: 20px 24px;
+      margin-bottom: 22px;
+    }
+
+    .progress-head {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .progress-wrap {
+      width: 100%;
+      height: 12px;
+      background: #e9edff;
+      border-radius: 999px;
+      overflow: hidden;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, .04);
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #8795ef, #647be0, #4857bb);
+      box-shadow: 0 6px 18px rgba(79, 103, 211, .4);
+      transition: width .18s linear;
+    }
+
+    .progress-foot {
+      text-align: center;
+      color: #96a0c9;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+
+    .results {
+      display: none;
+      padding: 24px 24px;
+      margin-bottom: 22px;
+      animation: fadeSlide .45s ease;
+    }
+
+    .res-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .res-header h3 {
+      margin: 0;
+      color: #1f2240;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .chip {
+      background: #ecfdf5;
+      color: #0d7a49;
+      border: 1px solid #c6f7da;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .section-label {
+      font-size: 13px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #9ca3af;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .localize-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 10px;
+    }
+
+    #localizeBtn {
+      width: fit-content;
+    }
+
+    .tumor-box {
+      background: #fff6f6;
+      border: 1px solid #ffe0e0;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 18px;
+    }
+
+    .tumor-box .title {
+      color: #991b1b;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .conf-rail {
+      width: 100%;
+      height: 9px;
+      background: #fde2e2;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .conf-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #4f67d3, #7285ff);
+      transition: width .5s ease;
+    }
+
+    .tumor-conf-label {
+      text-align: right;
+      font-size: 13px;
+      color: #111827;
+      margin-top: 6px;
+    }
+
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeSlide {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .page-frame {
+      margin-left: 250px;
+      transition: margin-left .35s ease;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      padding-top: 60px;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-content {
+      margin: auto;
+      display: block;
+      max-width: 80%;
+      max-height: 80%;
+      border-radius: 14px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+      animation: zoomIn 0.3s ease;
+    }
+
+    @keyframes zoomIn {
+      from {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .close {
+      position: absolute;
+      top: 25px;
+      right: 40px;
+      color: #fff;
+      font-size: 30px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .close:hover {
+      color: #f97316;
+      transform: scale(1.1);
+    }
+
+    .seg-overlay-box {
+      position: relative;
+      width: 100%;
+      max-width: 340px;
+      margin: auto;
+    }
+
+    .base-img {
+      width: 100%;
+      border-radius: 14px;
+      display: block;
+    }
+
+    .mask-img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      border-radius: 14px;
+      opacity: 0.45;
+      pointer-events: none;
+    }
+
+    @media (max-width: 768px) {
+      html,
+      body {
+        overflow-x: hidden !important;
+        width: 100% !important;
+      }
+
+      .sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        left: -260px !important;
+        width: 190px !important;
+        height: 100vh !important;
+        background: #ffffff !important;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        transition: left 0.35s ease !important;
+        z-index: 2000 !important;
+      }
+
+      .sidebar.active {
+        left: 0 !important;
+      }
+
+      #docheader {
+        left: 0 !important;
+        width: 94% !important;
+        position: fixed !important;
+        top: 0 !important;
+        z-index: 1500 !important;
+        background: #f7faff !important;
+      }
+
+      .footer-medical {
+        margin-left: 0 !important;
+        width: 100% !important;
+      }
+
+      .fm-wrapper {
+        display: flex;
+        flex-direction: row !important;
+        justify-content: space-between;
+        align-items: center;
+        text-align: center !important;
+        gap: 10px !important;
+        flex-wrap: nowrap;
+      }
+
+      .fm-left,
+      .fm-center,
+      .fm-right {
+        flex: 0 0 auto;
+      }
+
+      .main {
+        margin-top: 90px !important;
+        padding: 16px !important;
+      }
+
+      .mri-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 18px !important;
+      }
+
+      .mri-box img {
+        width: 70% !important;
+        margin: auto !important;
+        display: block !important;
+      }
+
+      .seg-overlay-box {
+        width: 70% !important;
+        max-width: 320px !important;
+        margin: 0 auto !important;
+      }
+
+      .seg-overlay-box img {
+        width: 93% !important;
+      }
+
+      .btn-dark {
+        font-size: 13px !important;
+      }
+
+      .fm-wrapper {
+        flex-direction: row !important;
+        text-align: center !important;
+        gap: 10px !important;
+      }
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(2px);
+      z-index: 1666;
+    }
+
+    .sidebar-overlay.active {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <aside class="sidebar">
+    <div class="brand" onclick="window.location.href='{{ url_for('home') }}'">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Brainalyze">
+      <span>Brainalyze</span>
+    </div>
+
+    <nav class="nav">
+      <a href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='images/home-icon.jpg') }}" alt=""><span>Home</span></a>
+      <a class="active" href="{{ url_for('patients') }}"><img src="{{ url_for('static',filename='images/patient-icon.png') }}" alt=""><span>Patients</span></a>
+      <a href="{{ url_for('profile') }}"><img src="{{ url_for('static',filename='images/user-icon.jpg') }}" alt=""><span>Profile</span></a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="#" id="logoutBtn" class="logout">
+        <span>Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <div class="popup-overlay" id="logoutPopup">
+    <div class="popup-box">
+      <h2>Confirm Logout</h2>
+      <p>Are you sure you want to log out?</p>
+      <div class="popup-buttons">
+        <button class="popup-cancel" id="cancelLogout">Cancel</button>
+        <button class="popup-confirm" id="confirmLogout">Yes, Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-wrapper">
+
+    <div id="docheader">
+      <div style="display:flex; align-items:center; gap:15px;">
+        <button class="toggle-btn" id="toggleBtn">
+          <img src="{{ url_for('static', filename='images/sidebar_icon.png') }}" alt="menu" width="32" height="32" style="object-fit: contain;">
+        </button>
+        <span id="pageTitle">Scan & Analyze MRI</span>
+      </div>
+
+      <div class="doctor-info">
+        <div class="doctor-details">
+          <h2>Dr. {{ doctor.name }}</h2>
+          <p>{{ doctor.email }}</p>
+        </div>
+
+        <img src="{{ doctor.ProfilePicture if doctor.ProfilePicture else url_for('static', filename='images/user.png') }}" class="profile-pic" alt="Profile" onclick="window.location.href='{{ url_for('profile') }}'">
+      </div>
+    </div>
+
+    <div class="main">
+
+      <section class="glass-card upload-card" id="uploadCard">
+        <h2>Upload MRI Image</h2>
+
+        <label class="upload-box" id="uploadBox" for="fileInput" title="Click to upload">
+          <i class="fa-solid fa-upload"></i>
+          <p>Click to upload MRI scan</p>
+          <small>DICOM, PNG, JPG formats supported</small>
+        </label>
+        <input type="file" id="fileInput" accept="image/*">
+
+        <img id="preview" alt="MRI Preview">
+
+        <div class="btns" id="btns">
+          <label for="fileInput">
+            <i class="fa-solid fa-image" style="margin-right:8px;"></i>
+            Upload Different Image
+          </label>
+          <input type="hidden" id="patientId" value="{{ request.args.get('patient_id') }}">
+          <input type="hidden" id="caseId" value="{{ request.args.get('case_id') }}">
+
+          <button id="analyzeBtn">Detect Tumor</button>
+        </div>
+      </section>
+
+      <section class="glass-card progress-card" id="progressCardCls" aria-live="polite">
+        <div class="progress-head">
+          <span>Classification in Progress...</span>
+          <span id="progressTextCls">0%</span>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-bar" id="progressBarCls"></div>
+        </div>
+        <div class="progress-foot">Classifying tumor type using AI model</div>
+      </section>
+
+      <section class="glass-card results" id="results">
+        <div class="res-header">
+          <h3>Analysis Results</h3>
+          <span class="chip">Analysis Complete</span>
+        </div>
+
+        <div>
+          <div class="section-label">Tumor Classification</div>
+          <div class="tumor-box">
+            <div class="title" id="tumorType">—</div>
+            <div class="conf-rail">
+              <div class="conf-fill" id="confFill"></div>
+            </div>
+            <p class="tumor-conf-label">
+              <span id="confScore">—</span> confidence
+            </p>
+          </div>
+        </div>
+
+        <div style="margin-top:6px; margin-bottom:10px;" class="section-label">MRI Visualization</div>
+
+        <div class="mri-grid">
+          <div class="mri-box">
+            <h4>Original MRI</h4>
+            <img id="origImg" src="{{ url_for('static', filename='images/original.png') }}" alt="Original MRI" class="zoomable">
+          </div>
+
+          <div class="mri-box">
+            <h4>Grad-CAM</h4>
+            <img id="gradImg" src="{{ url_for('static', filename='images/gradcam.png') }}" alt="Grad-CAM" class="zoomable">
+          </div>
+        </div>
+
+        <div class="localize-row">
+          <button class="btn-dark" id="localizeBtn">
+            <span id="locText">Reveal Tumor Area</span>
+            <span id="locSpinner" style="display:none; margin-left:8px;">
+              <i class="fa-solid fa-spinner fa-spin"></i>
+            </span>
+            <span id="locPercent" style="display:none; margin-left:6px; font-size:12px;">0%</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="glass-card seg-card" id="segCard">
+        <div class="seg-card-title">Tumor Segmentation</div>
+
+        <div class="seg-overlay-box">
+          <img id="origOverlay" src="" alt="Original MRI" class="base-img zoomable">
+          <img id="maskOverlay" src="" alt="Tumor Mask" class="mask-img zoomable">
+        </div>
+
+        <p style="text-align:center; color:#6b7280; font-size:12px; margin-top:8px;">
+          Highlighted tumor region (AI-based localization)
+        </p>
+      </section>
+
+      <div id="imgModal" class="modal">
+        <span class="close">&times;</span>
+        <img class="modal-content" id="modalImg">
+      </div>
+
+      <button id="finishBtn" class="btn-dark" style="margin-top:20px;">
+        Finish Analysis
+      </button>
+
+    </div>
+
+    <footer class="footer-medical">
+      <div class="fm-wrapper">
+        <div class="fm-left">
+          <img src="/static/images/logo.png" class="fm-logo" alt="Brainalyze">
+          <span class="fm-copy">© 2025 Brainalyze</span>
+        </div>
+
+        <div class="fm-center">
+          <span class="fm-title">FOLLOW US</span>
+          <div class="fm-icons">
+            <a style="text-decoration: none; color: black;" href="https://x.com/brainalyze_co"><img src="/static/images/twitter.png" alt=""><br> @brainalyze_co</a>
+          </div>
+        </div>
+
+        <div class="fm-right">
+          <span class="fm-title">CONTACT</span>
+          <p class="fm-contact">+966530782404</p>
+          <p class="fm-contact">443200466@student.ksu.edu.sa</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const uploadBox = document.getElementById('uploadBox');
+    const preview = document.getElementById('preview');
+    const btns = document.getElementById('btns');
+    const sidebar = document.querySelector(".sidebar");
+    const toggleBtn = document.getElementById("toggleBtn");
+    const progressCardCls = document.getElementById('progressCardCls');
+    const progressBarCls = document.getElementById('progressBarCls');
+    const progressTextCls = document.getElementById('progressTextCls');
+    const results = document.getElementById('results');
+    const tumorType = document.getElementById('tumorType');
+    const confFill = document.getElementById('confFill');
+    const confScore = document.getElementById('confScore');
+    const localizeBtn = document.getElementById('localizeBtn');
+    const locText = document.getElementById('locText');
+    const locSpinner = document.getElementById('locSpinner');
+    const locPercent = document.getElementById('locPercent');
+    const segCard = document.getElementById('segCard');
+    const origOverlay = document.getElementById('origOverlay');
+    const maskOverlay = document.getElementById('maskOverlay');
+    const origImg = document.getElementById('origImg');
+    const gradImg = document.getElementById('gradImg');
+    const finishBtn = document.getElementById('finishBtn');
+    let lastScanId = null;
+    let hasMask = false;
+    let maskPath = null;
+
+    function resetResultsUI() {
+      progressCardCls.style.display = 'none';
+      progressBarCls.style.width = '0%';
+      progressTextCls.textContent = '0%';
+      results.style.display = 'none';
+      segCard.style.display = 'none';
+
+      document.querySelectorAll('.section-label').forEach(l => l.style.display = "");
+      document.querySelectorAll('.mri-box').forEach(b => {
+        b.style.display = "block";
+        const img = b.querySelector("img");
+        if (img) img.style.display = "block";
+      });
+
+      localizeBtn.style.display = "flex";
+
+      const tumorBox = document.querySelector(".tumor-box");
+      tumorBox.style.background = "#fff6f6";
+      tumorBox.style.border = "1px solid #ffe0e0";
+      tumorType.style.color = "#991b1b";
+
+      confFill.style.width = "0%";
+      confScore.textContent = "—";
+      hasMask = false;
+      maskPath = null;
+      lastScanId = null;
+    }
+
+    function applyNoTumorUI(conf) {
+      tumorType.textContent = "No Tumor Detected";
+
+      const tumorBox = document.querySelector(".tumor-box");
+      tumorBox.style.background = "#f0f7ff";
+      tumorBox.style.border = "1px solid #cfe3ff";
+      tumorType.style.color = "#1d4ed8";
+
+      const c = conf != null ? Number(conf) : 99.0;
+      confFill.style.width = c + "%";
+      confScore.textContent = c.toFixed(1) + "%";
+
+      document.querySelectorAll('.section-label').forEach(l => l.style.display = "none");
+      document.querySelectorAll('.mri-box').forEach(b => b.style.display = "none");
+
+      localizeBtn.style.display = "none";
+      segCard.style.display = "none";
+      results.style.display = "block";
+    }
+
+    fileInput.addEventListener('change', e => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      resetResultsUI();
+
+      const url = URL.createObjectURL(file);
+      preview.src = url;
+      preview.style.display = 'block';
+      uploadBox.style.display = 'none';
+      btns.style.display = 'flex';
+    });
+
+    document.addEventListener("click", e => {
+      if (e.target.classList.contains("zoomable")) {
+        document.getElementById("modalImg").src = e.target.src;
+        document.getElementById("imgModal").style.display = "block";
+      }
+      if (e.target.classList.contains("close")) {
+        document.getElementById("imgModal").style.display = "none";
+      }
+    });
+
+    document.getElementById('analyzeBtn').addEventListener('click', () => {
+      const file = fileInput.files?.[0];
+      if (!file) {
+        alert('Please upload MRI image first.');
+        return;
+      }
+
+      resetResultsUI();
+      progressCardCls.style.display = 'block';
+      progressBarCls.style.width = '0%';
+      progressTextCls.textContent = '0%';
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("patient_id", "{{ request.args.get('patient_id') or '' }}");
+      formData.append("case_id", document.getElementById("caseId").value || "");
+
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", "/analyze_mri", true);
+
+      xhr.upload.addEventListener("progress", (e) => {
+        if (e.lengthComputable) {
+          const percent = Math.round((e.loaded / e.total) * 80);
+          progressBarCls.style.width = percent + "%";
+          progressTextCls.textContent = percent + "%";
+        }
+      });
+
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status === 200) {
+            const data = JSON.parse(xhr.responseText || "{}");
+            lastScanId = data.scan_id || null;
+            hasMask = !!data.mask;
+            maskPath = data.mask || null;
+
+            let p = 80;
+            const step = setInterval(() => {
+              p += 4;
+              if (p >= 100) {
+                clearInterval(step);
+                progressBarCls.style.width = "100%";
+                progressTextCls.textContent = "100%";
+
+                setTimeout(() => {
+                  progressCardCls.style.display = "none";
+
+                  if (data.original && origImg) {
+                    origImg.src = data.original;
+                    origOverlay.src = data.original;
+                  }
+                  if (data.gradcam && gradImg) {
+                    gradImg.src = data.gradcam;
+                  }
+
+                  const normType = (data.tumor_type || "").toLowerCase().replace(/\s|[-_]/g, "");
+                  if (normType === "notumor") {
+                    applyNoTumorUI(data.confidence);
+                    return;
+                  }
+
+                  tumorType.textContent = data.tumor_type || "Brain Tumor Detected";
+                  localizeBtn.style.display = "flex";
+
+                  const conf = data.confidence != null ? Number(data.confidence) : 90.0;
+                  confFill.style.width = conf + "%";
+                  confScore.textContent = conf.toFixed(1) + "%";
+                  results.style.display = "block";
+
+                  if (hasMask && maskPath) {
+                    maskOverlay.src = maskPath;
+                  }
+
+                }, 350);
+              } else {
+                progressBarCls.style.width = p + "%";
+                progressTextCls.textContent = p + "%";
+              }
+            }, 120);
+          } else {
+            alert("Error during analysis.");
+            progressCardCls.style.display = "none";
+          }
+        }
+      };
+
+      xhr.send(formData);
+    });
+
+    localizeBtn.addEventListener("click", () => {
+      if (!lastScanId) {
+        alert("Please run tumor detection first.");
+        return;
+      }
+
+      if (hasMask && maskPath) {
+        maskOverlay.src = maskPath;
+        segCard.style.display = "block";
+        return;
+      }
+
+      locText.style.display = "none";
+      locSpinner.style.display = "inline-block";
+      locPercent.style.display = "inline-block";
+      localizeBtn.disabled = true;
+
+      let p = 0;
+      const interval = setInterval(() => {
+        p = Math.min(p + 7, 90);
+        locPercent.textContent = p + "%";
+      }, 120);
+
+      const formData = new FormData();
+      formData.append("scan_id", lastScanId);
+
+      fetch("/segment_only", {
+        method: "POST",
+        body: formData
+      })
+        .then(r => r.json())
+        .then(d => {
+          clearInterval(interval);
+
+          if (d.status !== "success" || !d.mask) {
+            locSpinner.style.display = "none";
+            locPercent.style.display = "none";
+            locText.style.display = "inline";
+            localizeBtn.disabled = false;
+            alert("Segmentation failed.");
+            return;
+          }
+
+          hasMask = true;
+          maskPath = d.mask;
+          locPercent.textContent = "100%";
+
+          setTimeout(() => {
+            locSpinner.style.display = "none";
+            locPercent.style.display = "none";
+            locText.style.display = "inline";
+            localizeBtn.disabled = false;
+
+            maskOverlay.src = maskPath;
+            if (!origOverlay.src && origImg.src) {
+              origOverlay.src = origImg.src;
+            }
+            segCard.style.display = "block";
+          }, 200);
+        })
+        .catch(() => {
+          clearInterval(interval);
+          locSpinner.style.display = "none";
+          locPercent.style.display = "none";
+          locText.style.display = "inline";
+          localizeBtn.disabled = false;
+          alert("Segmentation request error.");
+        });
+    });
+
+    const overlay = document.getElementById("sidebarOverlay");
+
+    toggleBtn.addEventListener("click", () => {
+      if (window.innerWidth > 768) {
+        sidebar.classList.toggle("collapsed");
+      } else {
+        sidebar.classList.toggle("active");
+        overlay.classList.toggle("active");
+      }
+    });
+
+    overlay.addEventListener("click", () => {
+      sidebar.classList.remove("active");
+      overlay.classList.remove("active");
+    });
+
+    const logoutBtn = document.getElementById("logoutBtn");
+    const logoutPopup = document.getElementById("logoutPopup");
+    const confirmLogout = document.getElementById("confirmLogout");
+    const cancelLogout = document.getElementById("cancelLogout");
+
+    logoutBtn.addEventListener("click", function(event) {
+      event.preventDefault();
+      logoutPopup.style.display = "flex";
+    });
+
+    cancelLogout.addEventListener("click", function() {
+      logoutPopup.style.display = "none";
+    });
+
+    confirmLogout.addEventListener("click", function() {
+      logoutPopup.style.display = "none";
+      sessionStorage.clear();
+      localStorage.clear();
+      window.location.href = "{{ url_for('logout') }}";
+    });
+
+    window.addEventListener("click", function(event) {
+      if (event.target === logoutPopup) {
+        logoutPopup.style.display = "none";
+      }
+    });
+
+    document.addEventListener("DOMContentLoaded", function() {
+      const initialImage = "{{ first_image or '' }}";
+      if (!initialImage) return;
+
+      const fileUrl = initialImage;
+      preview.src = fileUrl;
+      preview.style.display = "block";
+      uploadBox.style.display = "none";
+      btns.style.display = "flex";
+
+      fetch(fileUrl)
+        .then(res => res.blob())
+        .then(blob => {
+          const file = new File([blob], "initial_scan.jpg", {
+            type: blob.type
+          });
+          const container = new DataTransfer();
+          container.items.add(file);
+          fileInput.files = container.files;
+        });
+    });
+
+    finishBtn.addEventListener("click", () => {
+      const patientId = "{{ patient_id }}";
+      const caseId = "{{ case_id }}";
+      window.location.href = `/patients/${patientId}/cases/${caseId}`;
+    });
+  </script>
+
+</body>
+</html>

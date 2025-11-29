@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Cairo:wght@300;400;600&display=swap" rel="stylesheet">
+  <title>Brainalyze - Sign up / log in </title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', 'Cairo', Arial, sans-serif;
+  }
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f7faff;
+  }
+  .site-logo {
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    width: 90px;
+    cursor: pointer;
+    transition: transform .3s ease, filter .3s ease;
+  }
+  .site-logo:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+  }
+  .container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    transition: all .6s ease;
+    margin-top: 7%;
+  }
+  .form-box {
+    width: 540px;
+    margin: 3rem auto;
+    padding: 40px 32px;
+    height: 600px;
+    background: #f4f7fb;
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, .2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: left;
+    position: relative;
+    transition: transform .8s ease;
+    transform-style: preserve-3d;
+  }
+  .form-content {
+    position: absolute;
+    width: 80%;
+    backface-visibility: hidden;
+  }
+  .signup {
+    transform: rotateY(0deg);
+  }
+  .form-content p {
+    text-align: center;
+    margin-top: 35px;
+  }
+  .form-content p a {
+    text-decoration: none;
+    font-weight: 600;
+    color: #506DCA;
+  }
+  .form-content p a:hover {
+    text-decoration: underline;
+  }
+  .login {
+    transform: translate(-50%, -50%) rotateY(180deg);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    color: #506DCA;
+  }
+  .form-box.flipped {
+    transform: rotateY(180deg);
+  }
+  h2 {
+    text-align: center;
+    color: #506DCA;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+  }
+  input {
+    width: 100%;
+    padding: 11px 38px 11px 10px;
+    border-radius: 10px;
+    border: 1px solid #cbd5e1;
+    background: #f9fafb;
+    font-size: .95rem;
+    margin-bottom: 8px;
+  }
+  button {
+    padding: 10px;
+    width: 100%;
+    border-radius: 10px;
+    border: none;
+    background: #506DCA;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: .3s;
+    margin-top: 6px;
+    position: relative;
+    overflow: hidden;
+  }
+  button:hover {
+    background: #1e40af;
+    transform: translateY(-1px);
+  }
+  button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  .inline-msg {
+    font-size: .85rem;
+    text-align: center;
+    margin-top: 6px;
+    opacity: 0;
+    transition: opacity .25s;
+  }
+  .inline-msg.show {
+    opacity: 1;
+  }
+  .inline-msg.error {
+    color: #d92b2b;
+  }
+  .inline-msg.success {
+    color: #1e2a47;
+  }
+  .password-wrapper {
+    position: relative;
+  }
+  .eye-icon {
+    position: absolute;
+    right: 10px;
+    top: 12px;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    fill: #1e2a47;
+    opacity: 0.7;
+  }
+  .container.reverse {
+    flex-direction: row-reverse;
+  }
+  .pw-hints {
+    font-size: .8rem;
+    color: #435273;
+    margin-top: 6px;
+    text-align: left;
+    line-height: 1.4;
+  }
+  .flag {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 0 7px;
+    border-right: 1.8px solid #cbd5e1;
+    border-radius: 10px 0 0 10px;
+    font-size: .95rem;
+  }
+  .phone-input {
+    display: flex;
+    align-items: center;
+    border: 1.8px solid #cbd5e1;
+    border-radius: 10px;
+    background-color: #f9fbff;
+    transition: all 0.3s ease;
+    margin-bottom: 8px;
+  }
+  .flag-img {
+    width: 22px;
+    border-radius: 2px;
+    object-fit: cover;
+  }
+  #signupPhone {
+    margin-bottom: 0;
+    border: none;
+  }
+  .btn-loading-spinner {
+    width: 18px;
+    height: 18px;
+    border: 3px solid #ffffff;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: auto;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  .pw-hints .bad { color: #464444; }
+  .pw-hints .ok { color: #1e8e3e; }
+
+@media (max-width: 900px) {
+  body {
+    align-items: flex-start;
+    padding: 1.5rem 1rem;
+  }
+  .container {
+    flex-direction: column !important;
+    gap: 1.5rem;
+    perspective: 1200px;
+    width: 90%;
+    margin-top: 7%;
+  }
+  .form-box {
+    width: 100%;
+    margin-top: 5rem;
+    padding: 6rem 1.5rem;
+    border-radius: 1.25rem;
+    transform-style: preserve-3d;
+    transition: transform .7s ease;
+  }
+  .form-content {
+    width: 80%;
+    position: absolute;
+    top: 0;
+    backface-visibility: hidden;
+    padding: 0 .2rem;
+    padding-top: 5%;
+  }
+  .form-box.flipped {
+    transform: rotateY(180deg);
+  }
+  .signup {
+    transform: rotateY(0deg);
+  }
+  .login {
+    transform: rotateY(180deg);
+  }
+  .form-content p {
+    font-size: .9rem;
+  }
+  input {
+    font-size: .92rem;
+    padding: 10px;
+  }
+  button {
+    font-size: .95rem;
+    padding: 12px;
+  }
+  .pw-hints {
+    font-size: .75rem;
+  }
+  .form-box {
+    transform: none !important;
+  }
+  .form-content {
+    position: relative;
+    width: 100%;
+    transform: none !important;
+    left: 0;
+    top: 0;
+    backface-visibility: visible;
+  }
+  .login, .signup {
+    position: relative;
+    transform: none !important;
+  }
+  .form-box:not(.flipped) #signupForm { display: block; }
+  .form-box:not(.flipped) #loginForm  { display: none;  }
+  .form-box.flipped #signupForm { display: none;  }
+  .form-box.flipped #loginForm  { display: block; }
+}
+
+@media (max-width: 480px) {
+  .form-box {
+    max-width: 95vw;
+    padding: 1.5rem 1rem;
+  }
+  input {
+    font-size: .85rem;
+    padding: 10px;
+  }
+  button {
+    font-size: .9rem;
+  }
+  h2 {
+    font-size: 1.2rem;
+  }
+  .inline-msg {
+    font-size: .78rem;
+  }
+}
+</style>
+</head>
+
+<body>
+  <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Brainalyze Logo" class="site-logo"
+    onclick="window.location.href='{{ url_for('index') }}'">
+
+  <div class="container" id="container">
+    <div class="image-box" id="imageBox"></div>
+
+    <div class="form-box" id="formBox">
+
+      <div class="form-content signup" id="signupForm">
+        <h2>Sign Up</h2>
+        <input type="text" id="signupName" placeholder="User name" required>
+        <input type="email" id="signupEmail" placeholder="Email" required>
+
+        <div class="phone-input">
+          <span class="flag">
+            <img src="{{ url_for('static', filename='images/saudi-flag.png') }}" alt="SA Flag" class="flag-img">
+            +966
+          </span>
+          <input type="text" id="signupPhone" name="phone" placeholder="Phone number 5XX..." inputmode="tel" required
+            pattern="^5\d{8}$" maxlength="9" title="Phone number must start with 5 and contain 9 digits.">
+        </div>
+
+        <div class="password-wrapper">
+          <input type="password" id="signupPassword" placeholder="Password" required>
+          <div class="pw-hints" id="pwHints">
+            <div id="hintLength" class="bad">• At least 8 characters</div>
+            <div id="hintUpper" class="bad">• Uppercase letter (A-Z)</div>
+            <div id="hintLower" class="bad">• Lowercase letter (a-z)</div>
+            <div id="hintNumber" class="bad">• Number (0-9)</div>
+            <div id="hintSymbol" class="bad">• Special character (!@#$...)</div>
+          </div>
+          <svg class="eye-icon" onclick="togglePassword('signupPassword', this)" viewBox="0 0 24 24">
+            <path d="M12 5c-7.633 0-12 7-12 7s4.367 7 12 7 12-7 12-7-4.367-7-12-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10z" />
+            <circle cx="12" cy="12" r="2.5" />
+          </svg>
+        </div>
+
+        <button id="signupBtn">Sign Up</button>
+        <p class="inline-msg error" id="signupError"></p>
+        <p class="inline-msg success" id="signupSuccess"></p>
+        <p>Already have an account? <a id="toLogin">Log In</a></p>
+      </div>
+
+      <div class="form-content login" id="loginForm">
+        <h2>Log In</h2>
+        <input type="email" id="loginEmail" placeholder="Email" required>
+        <div class="password-wrapper">
+          <input type="password" id="loginPassword" placeholder="Password" required>
+          <svg class="eye-icon" onclick="togglePassword('loginPassword', this)" viewBox="0 0 24 24">
+            <path d="M12 5c-7.633 0-12 7-12 7s4.367 7 12 7 12-7 12-7-4.367-7-12-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10z" />
+            <circle cx="12" cy="12" r="2.5" />
+          </svg>
+        </div>
+        <button id="loginBtn">Log In</button>
+        <p class="inline-msg error" id="loginError"></p>
+        <p class="inline-msg success" id="loginSuccess"></p>
+        <p>Forgot your password? <a href="{{ url_for('forget') }}">Reset password</a></p>
+        <p>Don’t have an account? <a id="toSignup">Sign Up</a></p>
+      </div>
+
+    </div>
+  </div>
+
+  <script type="module">
+    import { signInWithCredential } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, RecaptchaVerifier, PhoneAuthProvider, updateProfile } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC5bb6M-sEVu9JL7mkVLFvkv44k8JIG9Es",
+      authDomain: "brainalyze.firebaseapp.com",
+      projectId: "brainalyze",
+      storageBucket: "brainalyze.firebasestorage.app",
+      messagingSenderId: "930694068293",
+      appId: "1:930694068293:web:72fd905080497218010b2c",
+      measurementId: "G-FJ99J54EYR"
+    };
+
+    const appfb = initializeApp(firebaseConfig);
+    const auth = getAuth(appfb);
+    const db = getFirestore(appfb);
+
+    window.togglePassword = function (id, icon) {
+      const field = document.getElementById(id);
+      field.type = field.type === "password" ? "text" : "password";
+      icon.style.opacity = field.type === "text" ? "1" : "0.7";
+    };
+
+    function showInlineMessage(id, msg, isError = true) {
+      const el = document.getElementById(id);
+      el.textContent = msg;
+      el.classList.add("show");
+      el.classList.toggle("error", isError);
+      el.classList.toggle("success", !isError);
+      setTimeout(() => el.classList.remove("show"), 4000);
+    }
+
+    async function hashPassword(password) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(password);
+      const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    const passwordPolicyRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/;
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    function updatePasswordHints(pw) {
+      document.getElementById("hintLength").className = pw.length >= 8 ? "ok" : "bad";
+      document.getElementById("hintUpper").className = /[A-Z]/.test(pw) ? "ok" : "bad";
+      document.getElementById("hintLower").className = /[A-Z]/.test(pw) ? "ok" : "bad";
+      document.getElementById("hintNumber").className = /[0-9]/.test(pw) ? "ok" : "bad";
+      document.getElementById("hintSymbol").className = /[^A-Za-z0-9]/.test(pw) ? "ok" : "bad";
+    }
+
+    function setLoading(btn, isLoading) {
+      if (isLoading) {
+        btn.disabled = true;
+        if (!btn.dataset.original) btn.dataset.original = btn.textContent;
+        btn.innerHTML = `<div class="btn-loading-spinner"></div>`;
+      } else {
+        btn.disabled = false;
+        btn.textContent = btn.dataset.original || 'Sign Up';
+      }
+    }
+
+    document.getElementById("signupPassword").addEventListener("input", (e) => {
+      updatePasswordHints(e.target.value);
+    });
+
+    document.getElementById("signupBtn").addEventListener("click", async (e) => {
+      e.preventDefault();
+
+      const btn = document.getElementById("signupBtn");
+      if (btn.disabled) return;
+      setLoading(btn, true);
+
+      try {
+        const name = document.getElementById("signupName").value.trim();
+        const email = document.getElementById("signupEmail").value.trim();
+        const password = document.getElementById("signupPassword").value.trim();
+        const phoneRaw = document.getElementById("signupPhone").value
+          .trim()
+          .replace(/\D/g, "");
+        const phone = "+966" + phoneRaw;
+
+        const pwValid =
+          password.length >= 8 &&
+          /[A-Z]/.test(password) &&
+          /[a-z]/.test(password) &&
+          /[0-9]/.test(password) &&
+          /[^A-Za-z0-9]/.test(password);
+
+
+
+        if (!name || !email || !password) {
+          showInlineMessage("signupError", "Please fill all required fields");
+          setLoading(btn, false);
+          return;
+        }
+
+        if (!emailPattern.test(email)) {
+          showInlineMessage("signupError", "Please enter a valid email address.");
+          setLoading(btn, false);
+          return;
+        }
+
+        const phoneRegex = /^5\d{8}$/;
+        if (!phoneRegex.test(phoneRaw)) {
+          showInlineMessage("signupError", "Phone number must start with 5 and contain exactly 9 digits.");
+          setLoading(btn, false);
+          return;
+        }
+
+
+                if (!pwValid) {
+          showInlineMessage("signupError", "Password does not meet all requirements.");
+          setLoading(btn, false);
+          return;
+        }
+
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        await updateProfile(user, { displayName: name });
+
+        await fetch("/send_verification_email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email, name: name })
+        });
+
+        const hashedPassword = await hashPassword(password);
+
+        await setDoc(doc(db, "Radiologists", user.uid), {
+          FullName: name,
+          Email: email,
+          ContactNumber: phone || "",
+          PasswordHash: hashedPassword,
+          ProfilePicture: "{{ url_for('static', filename='images/user.png') }}",
+          Specialty: "",
+          Status: "Inactive",
+          CreatedAt: new Date().toISOString(),
+          TwoFactorEnabled: false,
+        });
+
+        showInlineMessage("signupSuccess", "Signup successful! Check your email to verify.", false);
+        sessionStorage.setItem("pending_email", email);
+        setLoading(btn, false);
+        setTimeout(() => (window.location.href = "{{ url_for('verify') }}"), 1500);
+
+      } catch (error) {
+        console.error(error);
+        let msg = "Signup failed.";
+        if (error.code === "auth/email-already-in-use")
+          msg = "Email already registered.";
+        else if (error.code === "auth/weak-password")
+          msg = "Password too weak.";
+
+        showInlineMessage("signupError", msg);
+        setLoading(btn, false);
+      }
+    });
+
+    document.getElementById("loginBtn").addEventListener("click", async (e) => {
+      e.preventDefault();
+
+      const btn = document.getElementById("loginBtn");
+      if (btn.disabled) return;
+      setLoading(btn, true);
+
+      const email = loginEmail.value.trim();
+      const password = loginPassword.value.trim();
+
+      if (!email || !password) {
+        showInlineMessage("loginError", "Please fill all fields");
+        setLoading(btn, false);
+        return;
+      }
+
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        if (!user.emailVerified) {
+          showInlineMessage("loginError", "Please verify your email first.");
+          setTimeout(() => window.location.href = "{{ url_for('verify') }}", 1200);
+          return;
+        }
+
+        const snap = await getDoc(doc(db, "Radiologists", user.uid));
+        const data = snap.data();
+
+        if (!data) {
+          showInlineMessage("loginError", "Account not found in database.");
+          setLoading(btn, false);
+          return;
+        }
+
+        const phone = data.ContactNumber;
+        if (!phone) {
+          showInlineMessage("loginError", "No phone number found for this user.");
+          setLoading(btn, false);
+          return;
+        }
+
+        window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", { size: "invisible" });
+
+        const provider = new PhoneAuthProvider(auth);
+        const verificationId = await provider.verifyPhoneNumber(phone, window.recaptchaVerifier);
+
+        sessionStorage.setItem("verificationId", verificationId);
+        sessionStorage.setItem("uid", user.uid);
+        sessionStorage.setItem("phoneNumber", phone);
+
+        showInlineMessage("loginSuccess", "Verification required...", false);
+
+        setTimeout(() => {
+          window.location.href = "/2FA_Prosses";
+        }, 800);
+
+      } catch (error) {
+        console.error(error);
+
+        let msg = "Login failed. Please try again.";
+
+        if (error.code === "auth/invalid-credential" || error.code === "auth/wrong-password") {
+          msg = "Incorrect email or password.";
+        }
+        else if (error.code === "auth/invalid-email") {
+          msg = "Invalid email format.";
+        }
+        else if (error.code === "auth/user-not-found") {
+          msg = "No account found with this email.";
+        }
+        else if (error.code === "auth/too-many-requests") {
+          msg = "Too many failed attempts. Try again later.";
+        }
+
+        showInlineMessage("loginError", msg);
+        setLoading(btn, false);
+      }
+    });
+
+    const toLogin = document.getElementById("toLogin");
+    const toSignup = document.getElementById("toSignup");
+    const formBox = document.getElementById("formBox");
+    const container = document.getElementById("container");
+
+    toLogin.addEventListener("click", () => { formBox.classList.add("flipped"); container.classList.add("reverse"); });
+    toSignup.addEventListener("click", () => { formBox.classList.remove("flipped"); container.classList.remove("reverse"); });
+
+  </script>
+
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const formBox = document.getElementById("formBox");
+      const container = document.getElementById("container");
+
+      if (window.location.hash === "#login") {
+        formBox.classList.add("flipped");
+        container.classList.add("reverse");
+      }
+
+      if (window.location.hash === "#signup") {
+        formBox.classList.remove("flipped");
+        container.classList.remove("reverse");
+      }
+    });
+  </script>
+
+  <div id="recaptcha-container"></div>
+
+</body>
+</html>

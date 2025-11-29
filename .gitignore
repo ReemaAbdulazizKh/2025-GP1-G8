@@ -1,0 +1,37 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+env/
+venv/
+
+# Local uploads (patient images)
+static/uploads/
+
+# Firebase keys and credentials
+*.json
+# لو تبين تستثنين firebase.json اكتبي:
+!firebase.json
+brainalyze-admin.json
+brainalyze-firebase-adminsdk-fbsvc-22398a77eb.json
+smtp_config.py
+database.rules.json
+
+
+# OS junk files
+desktop.ini
+.DS_Store
+Thumbs.db
+
+# VS Code settings
+.vscode/
+
+# Local environment variables
+.env
+
+# Cloud functions logs (optional)
+functions/node_modules/
