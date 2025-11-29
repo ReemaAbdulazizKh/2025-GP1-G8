@@ -11,6 +11,7 @@ venv/
 
 # Local uploads (patient images)
 static/uploads/
+static/images/
 
 # Firebase keys and credentials
 *.json
