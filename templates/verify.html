@@ -153,12 +153,18 @@
 
       document.getElementById("msg").textContent = "Resending...";
 
-      try {
-        const response = await fetch("/send_verification_email", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: email, name: "User" })
-        });
+   try {
+    const realName = sessionStorage.getItem("pending_name") || "User";
+
+    const response = await fetch("/send_verification_email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            email: email,
+            name: realName
+        })
+    });
+
 
         const data = await response.json();
 
