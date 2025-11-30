@@ -804,6 +804,44 @@ def segment_only():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+@app.route("/delete_patient/<patient_id>", methods=["POST"])
+def delete_patient(patient_id):
+
+    patient_ref = db.collection("Patients").document(patient_id)
+    patient_ref.delete()
+
+    cases_ref = db.collection("Cases").where("PatientID", "==", patient_id).stream()
+
+    for case in cases_ref:
+        case_id = case.id
+
+        scans_ref = db.collection("MRI_Scans").where("CaseID", "==", case_id).stream()
+
+        for scan in scans_ref:
+            scan_data = scan.to_dict()
+
+            paths = [
+                scan_data.get("MRIFilePath"),
+                scan_data.get("GradCAMPath"),
+                scan_data.get("SegmentationMaskPath"),
+            ]
+
+            for p in paths:
+                if p:
+                    try:
+                        bucket = storage.bucket()
+                        blob = bucket.blob(p.replace("/storage/", ""))
+                        blob.delete()
+                    except Exception:
+                        pass
+
+            db.collection("MRI_Scans").document(scan.id).delete()
+
+        db.collection("Cases").document(case_id).delete()
+
+    flash("Patient deleted successfully.", "success")
+    return redirect(url_for("patients"))
+
 
 @app.route("/patients/<patient_id>/cases/<case_id>/delete", methods=["POST"])
 def delete_case(patient_id, case_id):
